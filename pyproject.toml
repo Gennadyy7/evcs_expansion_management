@@ -1,0 +1,75 @@
+[project]
+name = "evcs-expansion-management"
+version = "0.1.0"
+description = "Electric vehicle charging station network development system."
+authors = [
+    {name = "hvesko",email = "hvesko@irc.beltelecom.by"}
+]
+readme = "README.md"
+requires-python = ">=3.14,<4"
+dependencies = [
+    "loguru (>=0.7.3,<0.8.0)",
+    "pydantic-settings (>=2.16.2,<3.0.0)",
+    "pydantic[email] (>=2.14.2,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
+
+[dependency-groups]
+dev = [
+    "loguru-mypy (>=0.0.4,<0.0.5)",
+    "ruff (>=0.17.3,<0.18.0)",
+    "mypy (>=2.4.1,<3.0.0)",
+    "pre-commit (>=4.7.0,<5.0.0)"
+]
+
+[tool.ruff]
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B", "C4", "PLC", "N", "SIM", "PERF", "TID", "RUF", "ASYNC", "A", "BLE", "T20"]
+ignore = ["E501", "A003"]
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-sort-within-sections = true
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+line-ending = "auto"
+skip-magic-trailing-comma = false
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+show_error_codes = true
+warn_unused_ignores = false
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+disallow_any_generics = true
+mypy_path = ["."]
+files = ["app"]
+
+disallow_any_explicit = true
+
+plugins = ["pydantic.mypy"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
