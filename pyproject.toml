@@ -44,6 +44,9 @@ ignore = ["E501", "A003"]
 fixable = ["ALL"]
 unfixable = []
 
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"__future__.annotations".msg = "from __future__ import annotations is deprecated in Python 3.14+. PEP 649 provides lazy annotation evaluation by default. See https://peps.python.org/pep-0749/"
+
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastapi.Depends"]
 
