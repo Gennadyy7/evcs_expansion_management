@@ -1,9 +1,29 @@
 services:
+  app_postgres:
+    image: postgres:18-alpine
+    container_name: app_db
+    env_file:
+      - ./.env
+    environment:
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$DATABASE_USER -d $$DATABASE_NAME"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
   fastapi_app:
     build:
       context: .
       dockerfile: Dockerfile.app
     container_name: fastapi_backend
+    depends_on:
+      app_postgres:
+        condition: service_healthy
     ports:
       - "8000:8000"
     env_file:

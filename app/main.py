@@ -3,10 +3,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import RedirectResponse
+from sqlalchemy import text
 import uvicorn
 
 from app.api import api_router
 from app.core.config import settings
+from app.core.database import db_manager
 from app.core.logging import get_logger, setup_logging
 
 setup_logging()
@@ -16,9 +18,11 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     logger.info('Application starting up')
+    db_manager.init()
     try:
         yield
     finally:
+        await db_manager.close()
         logger.info('Application shutting down')
 
 
@@ -50,7 +54,8 @@ async def root() -> RedirectResponse:
 async def health_check() -> dict[str, str]:
     logger.debug('Health check requested')
     try:
-        pass
+        async with db_manager.get_session() as session:
+            await session.execute(text('SELECT 1'))
     except Exception as e:
         logger.error(f'Health check failed: {e}')
         raise HTTPException(
