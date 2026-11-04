@@ -1,0 +1,17 @@
+services:
+  fastapi_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: fastapi_backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped

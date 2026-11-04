@@ -1,0 +1,40 @@
+FROM python:3.14-slim AS builder
+
+RUN pip install poetry==2.3.4
+
+RUN poetry self add poetry-plugin-export
+
+WORKDIR /app
+COPY pyproject.toml poetry.lock ./
+
+RUN poetry config virtualenvs.create false && \
+    poetry export -f requirements.txt --output requirements.txt --without-hashes && \
+    pip install --no-cache-dir -r requirements.txt && \
+    rm requirements.txt && \
+    rm -f pyproject.toml poetry.lock
+
+FROM python:3.14-slim
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl gosu && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=builder /usr/local/lib/python3.14/site-packages/ /usr/local/lib/python3.14/site-packages/
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
+
+COPY app/ ./app/
+# COPY alembic/ ./alembic/
+# COPY alembic.ini ./alembic.ini
+COPY entrypoint.sh ./entrypoint.sh
+
+# Start as root so entrypoint can chown the shared bind mount, then gosu drops to appuser.
+RUN chmod +x ./entrypoint.sh && \
+    groupadd --gid 1000 appuser && \
+    useradd --uid 1000 --gid appuser --create-home appuser && \
+    chown -R appuser:appuser /app
+
+ENTRYPOINT ["./entrypoint.sh"]
