@@ -16,7 +16,7 @@ from app.core.database import Base, TimestampMixin
 
 class Region(TimestampMixin, Base):
     __tablename__ = 'region'
-    __table_args__: dict[str, str] = {'schema': 'ref'}  # noqa: RUF012
+    __table_args__ = {'schema': 'ref'}  # noqa: RUF012
 
     region_id: Mapped[int] = mapped_column(
         BigInteger,
@@ -59,7 +59,7 @@ class Region(TimestampMixin, Base):
 
 class ChargerType(TimestampMixin, Base):
     __tablename__ = 'charger_type'
-    __table_args__: tuple[CheckConstraint, dict[str, str]] = (
+    __table_args__ = (
         CheckConstraint(
             "code IN ('AC','HYBRID','DC','OTHER')",
             name='charger_type_code_check',
@@ -95,7 +95,7 @@ class ChargerType(TimestampMixin, Base):
 
 class ConnectorType(TimestampMixin, Base):
     __tablename__ = 'connector_type'
-    __table_args__: dict[str, str] = {'schema': 'ref'}  # noqa: RUF012
+    __table_args__ = {'schema': 'ref'}  # noqa: RUF012
 
     connector_type_id: Mapped[int] = mapped_column(
         SmallInteger,
@@ -120,7 +120,7 @@ class ConnectorType(TimestampMixin, Base):
 
 class SiteType(TimestampMixin, Base):
     __tablename__ = 'site_type'
-    __table_args__: dict[str, str] = {'schema': 'ref'}  # noqa: RUF012
+    __table_args__ = {'schema': 'ref'}  # noqa: RUF012
 
     site_type_id: Mapped[int] = mapped_column(
         SmallInteger,
@@ -145,9 +145,7 @@ class SiteType(TimestampMixin, Base):
 
 class CostCategory(TimestampMixin, Base):
     __tablename__ = 'cost_category'
-    __table_args__: tuple[
-        CheckConstraint, UniqueConstraint, UniqueConstraint, dict[str, str]
-    ] = (
+    __table_args__ = (
         CheckConstraint(
             "cost_kind IN ('CAPEX','OPEX')",
             name='cost_category_kind_check',
@@ -201,7 +199,7 @@ class CostCategory(TimestampMixin, Base):
 
 class ProjectStage(TimestampMixin, Base):
     __tablename__ = 'project_stage'
-    __table_args__: tuple[CheckConstraint, dict[str, str]] = (
+    __table_args__ = (
         CheckConstraint(
             'stage_no BETWEEN 0 AND 13',
             name='project_stage_no_check',
