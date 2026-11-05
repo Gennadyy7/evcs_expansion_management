@@ -1,0 +1,67 @@
+class SiteStatus:
+    CANDIDATE = 'CANDIDATE'
+    PLANNED = 'PLANNED'
+    IN_PROGRESS = 'IN_PROGRESS'
+    BLOCKED = 'BLOCKED'
+    COMMISSIONED = 'COMMISSIONED'
+    OPERATING = 'OPERATING'
+    SUSPENDED = 'SUSPENDED'
+    CLOSED = 'CLOSED'
+
+    ALL = [
+        CANDIDATE,
+        PLANNED,
+        IN_PROGRESS,
+        BLOCKED,
+        COMMISSIONED,
+        OPERATING,
+        SUSPENDED,
+        CLOSED,
+    ]
+
+
+class StationLifecycleStatus:
+    PLANNED = 'PLANNED'
+    INSTALLED = 'INSTALLED'
+    COMMISSIONED = 'COMMISSIONED'
+    OPERATING = 'OPERATING'
+    RETIRED = 'RETIRED'
+
+    ALL = [PLANNED, INSTALLED, COMMISSIONED, OPERATING, RETIRED]
+
+
+class EvseLifecycleStatus:
+    PLANNED = 'PLANNED'
+    INSTALLED = 'INSTALLED'
+    COMMISSIONED = 'COMMISSIONED'
+    OPERATING = 'OPERATING'
+    RETIRED = 'RETIRED'
+
+    ALL = [PLANNED, INSTALLED, COMMISSIONED, OPERATING, RETIRED]
+
+
+class GridConnectionStatus:
+    REQUESTED = 'REQUESTED'
+    APPROVED = 'APPROVED'
+    IN_PROGRESS = 'IN_PROGRESS'
+    COMPLETED = 'COMPLETED'
+    CANCELLED = 'CANCELLED'
+
+    ALL = [REQUESTED, APPROVED, IN_PROGRESS, COMPLETED, CANCELLED]
+
+
+class OrganizationKind:
+    OWNER = 'owner'
+    CONTRACTOR = 'contractor'
+    VENDOR = 'vendor'
+    UTILITY = 'utility'
+    OTHER = 'other'
+
+    ALL = [OWNER, CONTRACTOR, VENDOR, UTILITY, OTHER]
+
+
+class CurrentKind:
+    AC = 'AC'
+    DC = 'DC'
+
+    ALL = [AC, DC]
