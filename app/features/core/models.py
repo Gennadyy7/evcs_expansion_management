@@ -14,8 +14,8 @@ from sqlalchemy import (
     SmallInteger,
     Text,
     UniqueConstraint,
+    Uuid,
 )
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base, TimestampMixin
@@ -27,6 +27,7 @@ from app.features.core.constants import (
     SiteStatus,
     StationLifecycleStatus,
 )
+from app.features.reference.models import ChargerType, ConnectorType, Region, SiteType
 
 
 class Organization(TimestampMixin, Base):
@@ -37,7 +38,7 @@ class Organization(TimestampMixin, Base):
     )
 
     organization_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         primary_key=True,
         default=uuid4,
         comment='Unique organization identifier',
@@ -59,13 +60,13 @@ class Organization(TimestampMixin, Base):
         comment=f'Organization type: {", ".join(OrganizationKind.ALL)}',
     )
 
-    owned_sites: Mapped[list['Site']] = relationship(
+    owned_sites: Mapped[list[Site]] = relationship(
         'Site',
         back_populates='land_owner',
         foreign_keys='Site.land_owner_id',
         lazy='select',
     )
-    utility_connections: Mapped[list['GridConnection']] = relationship(
+    utility_connections: Mapped[list[GridConnection]] = relationship(
         'GridConnection',
         back_populates='utility',
         lazy='select',
@@ -86,7 +87,7 @@ class Program(TimestampMixin, Base):
     )
 
     program_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         primary_key=True,
         default=uuid4,
         comment='Unique program identifier',
@@ -118,7 +119,7 @@ class Program(TimestampMixin, Base):
         comment='Total approved budget in BYN',
     )
 
-    sites: Mapped[list['Site']] = relationship(
+    sites: Mapped[list[Site]] = relationship(
         'Site',
         back_populates='program',
         lazy='selectin',
@@ -145,7 +146,7 @@ class Site(TimestampMixin, Base):
             name='ck_site_investment_priority_valid',
         ),
         CheckConstraint(
-            f"site_status IN ({','.join(repr(s) for s in SiteStatus.ALL)})",
+            f'site_status IN ({",".join(repr(s) for s in SiteStatus.ALL)})',
             name='ck_site_status_valid',
         ),
         Index('ix_site_region_status', 'region_id', 'site_status'),
@@ -154,7 +155,7 @@ class Site(TimestampMixin, Base):
     )
 
     site_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         primary_key=True,
         default=uuid4,
         comment='Unique site identifier',
@@ -165,7 +166,7 @@ class Site(TimestampMixin, Base):
         comment='Short site code (e.g., "SITE-067")',
     )
     program_id: Mapped[UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         ForeignKey('core.program.program_id', ondelete='SET NULL'),
         nullable=True,
         comment='Reference to the development program',
@@ -203,7 +204,7 @@ class Site(TimestampMixin, Base):
         comment='Longitude coordinate (WGS84)',
     )
     land_owner_id: Mapped[UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         ForeignKey('core.organization.organization_id', ondelete='SET NULL'),
         nullable=True,
         comment='Reference to the land owner organization',
@@ -230,38 +231,38 @@ class Site(TimestampMixin, Base):
         comment=f'Site lifecycle status: {", ".join(SiteStatus.ALL)}',
     )
 
-    program: Mapped['Program | None'] = relationship(
+    program: Mapped[Program | None] = relationship(
         'Program',
         back_populates='sites',
         lazy='selectin',
     )
-    region: Mapped['Region | None'] = relationship(
+    region: Mapped[Region | None] = relationship(
         'Region',
         lazy='selectin',
     )
-    site_type: Mapped['SiteType | None'] = relationship(
+    site_type: Mapped[SiteType | None] = relationship(
         'SiteType',
         lazy='selectin',
     )
-    land_owner: Mapped['Organization | None'] = relationship(
+    land_owner: Mapped[Organization | None] = relationship(
         'Organization',
         back_populates='owned_sites',
         foreign_keys='Site.land_owner_id',
         lazy='selectin',
     )
-    charging_stations: Mapped[list['ChargingStation']] = relationship(
+    charging_stations: Mapped[list[ChargingStation]] = relationship(
         'ChargingStation',
         back_populates='site',
         lazy='select',
         cascade='all, delete-orphan',
     )
-    grid_connections: Mapped[list['GridConnection']] = relationship(
+    grid_connections: Mapped[list[GridConnection]] = relationship(
         'GridConnection',
         back_populates='site',
         lazy='select',
         cascade='all, delete-orphan',
     )
-    capacity_history: Mapped[list['SiteCapacityHistory']] = relationship(
+    capacity_history: Mapped[list[SiteCapacityHistory]] = relationship(
         'SiteCapacityHistory',
         back_populates='site',
         lazy='select',
@@ -300,19 +301,19 @@ class GridConnection(TimestampMixin, Base):
     )
 
     grid_connection_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         primary_key=True,
         default=uuid4,
         comment='Unique grid connection identifier',
     )
     site_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         ForeignKey('core.site.site_id', ondelete='CASCADE'),
         nullable=False,
         comment='Reference to the site',
     )
     utility_id: Mapped[UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         ForeignKey('core.organization.organization_id', ondelete='SET NULL'),
         nullable=True,
         comment='Reference to the utility organization',
@@ -359,12 +360,12 @@ class GridConnection(TimestampMixin, Base):
         comment=f'Grid connection status: {", ".join(GridConnectionStatus.ALL)}',
     )
 
-    site: Mapped['Site'] = relationship(
+    site: Mapped[Site] = relationship(
         'Site',
         back_populates='grid_connections',
         lazy='selectin',
     )
-    utility: Mapped['Organization | None'] = relationship(
+    utility: Mapped[Organization | None] = relationship(
         'Organization',
         back_populates='grid_connections',
         lazy='selectin',
@@ -400,13 +401,13 @@ class ChargingStation(TimestampMixin, Base):
     )
 
     station_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         primary_key=True,
         default=uuid4,
         comment='Unique charging station identifier',
     )
     site_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         ForeignKey('core.site.site_id', ondelete='CASCADE'),
         nullable=False,
         comment='Reference to the site',
@@ -469,16 +470,16 @@ class ChargingStation(TimestampMixin, Base):
         comment=f'Station lifecycle status: {", ".join(StationLifecycleStatus.ALL)}',
     )
 
-    site: Mapped['Site'] = relationship(
+    site: Mapped[Site] = relationship(
         'Site',
         back_populates='charging_stations',
         lazy='selectin',
     )
-    charger_type: Mapped['ChargerType'] = relationship(
+    charger_type: Mapped[ChargerType] = relationship(
         'ChargerType',
         lazy='selectin',
     )
-    evses: Mapped[list['Evse']] = relationship(
+    evses: Mapped[list[Evse]] = relationship(
         'Evse',
         back_populates='charging_station',
         lazy='selectin',
@@ -518,7 +519,7 @@ class Evse(TimestampMixin, Base):
             name='ck_evse_nominal_power_positive',
         ),
         CheckConstraint(
-            f"current_kind IN ({','.join(repr(c) for c in CurrentKind.ALL)})",
+            f'current_kind IN ({",".join(repr(c) for c in CurrentKind.ALL)})',
             name='ck_evse_current_kind_valid',
         ),
         CheckConstraint(
@@ -530,13 +531,13 @@ class Evse(TimestampMixin, Base):
     )
 
     evse_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         primary_key=True,
         default=uuid4,
         comment='Unique EVSE identifier',
     )
     station_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         ForeignKey('core.charging_station.station_id', ondelete='CASCADE'),
         nullable=False,
         comment='Reference to the charging station',
@@ -578,12 +579,12 @@ class Evse(TimestampMixin, Base):
         comment=f'EVSE lifecycle status: {", ".join(EvseLifecycleStatus.ALL)}',
     )
 
-    charging_station: Mapped['ChargingStation'] = relationship(
+    charging_station: Mapped[ChargingStation] = relationship(
         'ChargingStation',
         back_populates='evses',
         lazy='selectin',
     )
-    connectors: Mapped[list['Connector']] = relationship(
+    connectors: Mapped[list[Connector]] = relationship(
         'Connector',
         back_populates='evse',
         lazy='selectin',
@@ -619,13 +620,13 @@ class Connector(TimestampMixin, Base):
     )
 
     connector_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         primary_key=True,
         default=uuid4,
         comment='Unique connector identifier',
     )
     evse_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         ForeignKey('core.evse.evse_id', ondelete='CASCADE'),
         nullable=False,
         comment='Reference to the EVSE',
@@ -647,18 +648,18 @@ class Connector(TimestampMixin, Base):
         comment='Rated power capacity in kW',
     )
 
-    evse: Mapped['Evse'] = relationship(
+    evse: Mapped[Evse] = relationship(
         'Evse',
         back_populates='connectors',
         lazy='select',
     )
-    connector_type: Mapped['ConnectorType'] = relationship(
+    connector_type: Mapped[ConnectorType] = relationship(
         'ConnectorType',
         lazy='selectin',
     )
 
     def __repr__(self) -> str:
-        return f"Connector(evse_id={self.evse_id}, no={self.connector_no}, type_id={self.connector_type_id})"
+        return f'Connector(evse_id={self.evse_id}, no={self.connector_no}, type_id={self.connector_type_id})'
 
 
 class SiteCapacityHistory(TimestampMixin, Base):
@@ -689,13 +690,13 @@ class SiteCapacityHistory(TimestampMixin, Base):
     )
 
     site_capacity_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         primary_key=True,
         default=uuid4,
         comment='Unique capacity history record identifier',
     )
     site_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        Uuid,
         ForeignKey('core.site.site_id', ondelete='CASCADE'),
         nullable=False,
         comment='Reference to the site',
@@ -736,7 +737,7 @@ class SiteCapacityHistory(TimestampMixin, Base):
         comment='Reason for the capacity change',
     )
 
-    site: Mapped['Site'] = relationship(
+    site: Mapped[Site] = relationship(
         'Site',
         back_populates='capacity_history',
         lazy='selectin',
@@ -744,8 +745,8 @@ class SiteCapacityHistory(TimestampMixin, Base):
 
     def __repr__(self) -> str:
         return (
-            f"SiteCapacityHistory(site_id={self.site_id}, "
-            f"from={self.valid_from}, to={self.valid_to})"
+            f'SiteCapacityHistory(site_id={self.site_id}, '
+            f'from={self.valid_from}, to={self.valid_to})'
         )
 
     @property
