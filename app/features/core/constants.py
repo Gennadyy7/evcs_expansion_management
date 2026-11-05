@@ -1,4 +1,7 @@
-class SiteStatus:
+from enum import StrEnum
+
+
+class SiteStatus(StrEnum):
     CANDIDATE = 'CANDIDATE'
     PLANNED = 'PLANNED'
     IN_PROGRESS = 'IN_PROGRESS'
@@ -8,60 +11,39 @@ class SiteStatus:
     SUSPENDED = 'SUSPENDED'
     CLOSED = 'CLOSED'
 
-    ALL = [
-        CANDIDATE,
-        PLANNED,
-        IN_PROGRESS,
-        BLOCKED,
-        COMMISSIONED,
-        OPERATING,
-        SUSPENDED,
-        CLOSED,
-    ]
 
-
-class StationLifecycleStatus:
+class StationLifecycleStatus(StrEnum):
     PLANNED = 'PLANNED'
     INSTALLED = 'INSTALLED'
     COMMISSIONED = 'COMMISSIONED'
     OPERATING = 'OPERATING'
     RETIRED = 'RETIRED'
 
-    ALL = [PLANNED, INSTALLED, COMMISSIONED, OPERATING, RETIRED]
 
-
-class EvseLifecycleStatus:
+class EvseLifecycleStatus(StrEnum):
     PLANNED = 'PLANNED'
     INSTALLED = 'INSTALLED'
     COMMISSIONED = 'COMMISSIONED'
     OPERATING = 'OPERATING'
     RETIRED = 'RETIRED'
 
-    ALL = [PLANNED, INSTALLED, COMMISSIONED, OPERATING, RETIRED]
 
-
-class GridConnectionStatus:
+class GridConnectionStatus(StrEnum):
     REQUESTED = 'REQUESTED'
     APPROVED = 'APPROVED'
     IN_PROGRESS = 'IN_PROGRESS'
     COMPLETED = 'COMPLETED'
     CANCELLED = 'CANCELLED'
 
-    ALL = [REQUESTED, APPROVED, IN_PROGRESS, COMPLETED, CANCELLED]
 
-
-class OrganizationKind:
+class OrganizationKind(StrEnum):
     OWNER = 'owner'
     CONTRACTOR = 'contractor'
     VENDOR = 'vendor'
     UTILITY = 'utility'
     OTHER = 'other'
 
-    ALL = [OWNER, CONTRACTOR, VENDOR, UTILITY, OTHER]
 
-
-class CurrentKind:
+class CurrentKind(StrEnum):
     AC = 'AC'
     DC = 'DC'
-
-    ALL = [AC, DC]

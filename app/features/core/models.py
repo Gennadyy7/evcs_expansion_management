@@ -57,7 +57,7 @@ class Organization(TimestampMixin, Base):
         Text,
         nullable=False,
         server_default=OrganizationKind.OTHER,
-        comment=f'Organization type: {", ".join(OrganizationKind.ALL)}',
+        comment=f'Organization type: {", ".join(k.value for k in OrganizationKind)}',
     )
 
     owned_sites: Mapped[list[Site]] = relationship(
@@ -146,7 +146,7 @@ class Site(TimestampMixin, Base):
             name='ck_site_investment_priority_valid',
         ),
         CheckConstraint(
-            f'site_status IN ({",".join(repr(s) for s in SiteStatus.ALL)})',
+            f'site_status IN ({",".join(repr(s.value) for s in SiteStatus)})',
             name='ck_site_status_valid',
         ),
         Index('ix_site_region_status', 'region_id', 'site_status'),
@@ -228,7 +228,7 @@ class Site(TimestampMixin, Base):
         Text,
         nullable=False,
         server_default=SiteStatus.PLANNED,
-        comment=f'Site lifecycle status: {", ".join(SiteStatus.ALL)}',
+        comment=f'Site lifecycle status: {", ".join(s.value for s in SiteStatus)}',
     )
 
     program: Mapped[Program | None] = relationship(
@@ -357,7 +357,7 @@ class GridConnection(TimestampMixin, Base):
         Text,
         nullable=False,
         server_default=GridConnectionStatus.REQUESTED,
-        comment=f'Grid connection status: {", ".join(GridConnectionStatus.ALL)}',
+        comment=f'Grid connection status: {", ".join(s.value for s in GridConnectionStatus)}',
     )
 
     site: Mapped[Site] = relationship(
@@ -467,7 +467,7 @@ class ChargingStation(TimestampMixin, Base):
         Text,
         nullable=False,
         server_default=StationLifecycleStatus.PLANNED,
-        comment=f'Station lifecycle status: {", ".join(StationLifecycleStatus.ALL)}',
+        comment=f'Station lifecycle status: {", ".join(s.value for s in StationLifecycleStatus)}',
     )
 
     site: Mapped[Site] = relationship(
@@ -519,7 +519,7 @@ class Evse(TimestampMixin, Base):
             name='ck_evse_nominal_power_positive',
         ),
         CheckConstraint(
-            f'current_kind IN ({",".join(repr(c) for c in CurrentKind.ALL)})',
+            f'current_kind IN ({",".join(repr(c.value) for c in CurrentKind)})',
             name='ck_evse_current_kind_valid',
         ),
         CheckConstraint(
@@ -560,7 +560,7 @@ class Evse(TimestampMixin, Base):
     current_kind: Mapped[str] = mapped_column(
         Text,
         nullable=False,
-        comment=f'Current type: {", ".join(CurrentKind.ALL)}',
+        comment=f'Current type: {", ".join(c.value for c in CurrentKind)}',
     )
     commissioned_at: Mapped[date | None] = mapped_column(
         Date,
@@ -576,7 +576,7 @@ class Evse(TimestampMixin, Base):
         Text,
         nullable=False,
         server_default=EvseLifecycleStatus.PLANNED,
-        comment=f'EVSE lifecycle status: {", ".join(EvseLifecycleStatus.ALL)}',
+        comment=f'EVSE lifecycle status: {", ".join(s.value for s in EvseLifecycleStatus)}',
     )
 
     charging_station: Mapped[ChargingStation] = relationship(
