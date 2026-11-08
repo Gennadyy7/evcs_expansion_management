@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from decimal import Decimal
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
@@ -28,6 +29,9 @@ from app.features.core.constants import (
     StationLifecycleStatus,
 )
 from app.features.reference.models import ChargerType, ConnectorType, Region, SiteType
+
+if TYPE_CHECKING:
+    from app.features.pm.models import Project
 
 
 class Organization(TimestampMixin, Base):
@@ -64,12 +68,12 @@ class Organization(TimestampMixin, Base):
         'Site',
         back_populates='land_owner',
         foreign_keys='Site.land_owner_id',
-        lazy='select',
+        lazy='raise',
     )
     utility_connections: Mapped[list[GridConnection]] = relationship(
         'GridConnection',
         back_populates='utility',
-        lazy='select',
+        lazy='raise',
     )
 
     def __repr__(self) -> str:
@@ -253,20 +257,26 @@ class Site(TimestampMixin, Base):
     charging_stations: Mapped[list[ChargingStation]] = relationship(
         'ChargingStation',
         back_populates='site',
-        lazy='select',
+        lazy='raise',
         cascade='all, delete-orphan',
     )
     grid_connections: Mapped[list[GridConnection]] = relationship(
         'GridConnection',
         back_populates='site',
-        lazy='select',
+        lazy='raise',
         cascade='all, delete-orphan',
     )
     capacity_history: Mapped[list[SiteCapacityHistory]] = relationship(
         'SiteCapacityHistory',
         back_populates='site',
-        lazy='select',
+        lazy='raise',
         order_by='SiteCapacityHistory.valid_from.desc()',
+    )
+    projects: Mapped[list[Project]] = relationship(
+        'Project',
+        back_populates='site',
+        lazy='raise',
+        cascade='all, delete-orphan',
     )
 
     def __repr__(self) -> str:
@@ -651,7 +661,7 @@ class Connector(TimestampMixin, Base):
     evse: Mapped[Evse] = relationship(
         'Evse',
         back_populates='connectors',
-        lazy='select',
+        lazy='raise',
     )
     connector_type: Mapped[ConnectorType] = relationship(
         'ConnectorType',
