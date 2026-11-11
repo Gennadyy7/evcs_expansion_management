@@ -31,7 +31,12 @@ from app.features.core.constants import (
 from app.features.reference.models import ChargerType, ConnectorType, Region, SiteType
 
 if TYPE_CHECKING:
-    from app.features.pm.models import Project
+    from app.features.pm.models import (
+        CommissioningTest,
+        DeliveryItem,
+        NetworkPlan,
+        Project,
+    )
 
 
 class Organization(TimestampMixin, Base):
@@ -127,6 +132,12 @@ class Program(TimestampMixin, Base):
         'Site',
         back_populates='program',
         lazy='selectin',
+    )
+    network_plans: Mapped[list[NetworkPlan]] = relationship(
+        'NetworkPlan',
+        back_populates='program',
+        lazy='raise',
+        cascade='all, delete-orphan',
     )
 
     def __repr__(self) -> str:
@@ -496,6 +507,11 @@ class ChargingStation(TimestampMixin, Base):
         cascade='all, delete-orphan',
         order_by='Evse.position_number',
     )
+    delivery_items: Mapped[list[DeliveryItem]] = relationship(
+        'DeliveryItem',
+        back_populates='station',
+        lazy='raise',
+    )
 
     def __repr__(self) -> str:
         return f"ChargingStation(code='{self.station_code}', type='{self.charger_type_id}')"
@@ -600,6 +616,11 @@ class Evse(TimestampMixin, Base):
         lazy='selectin',
         cascade='all, delete-orphan',
         order_by='Connector.connector_no',
+    )
+    commissioning_tests: Mapped[list[CommissioningTest]] = relationship(
+        'CommissioningTest',
+        back_populates='evse',
+        lazy='raise',
     )
 
     def __repr__(self) -> str:
