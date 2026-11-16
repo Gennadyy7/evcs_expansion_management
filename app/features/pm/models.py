@@ -589,18 +589,6 @@ class StageExecution(TimestampMixin, Base):
         lazy='raise',
         cascade='all, delete-orphan',
     )
-    permits: Mapped[list[Permit]] = relationship(
-        'Permit',
-        back_populates='stage_execution',
-        lazy='raise',
-        cascade='all, delete-orphan',
-    )
-    commissioning_tests: Mapped[list[CommissioningTest]] = relationship(
-        'CommissioningTest',
-        back_populates='stage_execution',
-        lazy='raise',
-        cascade='all, delete-orphan',
-    )
     issues: Mapped[list[Issue]] = relationship(
         'Issue',
         back_populates='stage_execution',
@@ -798,6 +786,7 @@ class ProjectDocument(TimestampMixin, Base):
     )
     stage_execution: Mapped[StageExecution | None] = relationship(
         'StageExecution',
+        back_populates='documents',
         lazy='selectin',
     )
     permits: Mapped[list[Permit]] = relationship(
@@ -911,6 +900,7 @@ class Permit(TimestampMixin, Base):
     )
     document: Mapped[ProjectDocument | None] = relationship(
         'ProjectDocument',
+        back_populates='permits',
         lazy='selectin',
     )
     responsible_organization: Mapped[Organization | None] = relationship(
@@ -1139,6 +1129,7 @@ class PurchaseOrder(TimestampMixin, Base):
     )
     contract: Mapped[Contract | None] = relationship(
         'Contract',
+        back_populates='purchase_orders',
         lazy='selectin',
     )
     deliveries: Mapped[list[Delivery]] = relationship(
@@ -1280,6 +1271,7 @@ class DeliveryItem(TimestampMixin, Base):
     )
     station: Mapped[ChargingStation | None] = relationship(
         'ChargingStation',
+        back_populates='delivery_items',
         lazy='selectin',
     )
 
@@ -1465,13 +1457,9 @@ class CommissioningTest(TimestampMixin, Base):
         back_populates='commissioning_tests',
         lazy='selectin',
     )
-    stage_execution: Mapped[StageExecution | None] = relationship(
-        'StageExecution',
-        back_populates='commissioning_tests',
-        lazy='selectin',
-    )
     evse: Mapped[Evse | None] = relationship(
         'Evse',
+        back_populates='commissioning_tests',
         lazy='selectin',
     )
     document: Mapped[ProjectDocument | None] = relationship(
