@@ -3,6 +3,7 @@ from decimal import Decimal
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
+    BigInteger,
     CheckConstraint,
     Date,
     DateTime,
@@ -45,15 +46,15 @@ class Project(TimestampMixin, Base):
         UniqueConstraint('project_code', name='uq_project_code'),
         CheckConstraint(
             f'project_type IN ({",".join(repr(t.value) for t in ProjectType)})',
-            name='ck_project_type_valid',
+            name='project_type_valid',
         ),
         CheckConstraint(
             f'status IN ({",".join(repr(s.value) for s in ProjectStatus)})',
-            name='ck_project_status_valid',
+            name='project_status_valid',
         ),
         CheckConstraint(
             'baseline_finish IS NULL OR baseline_start IS NULL OR baseline_finish >= baseline_start',
-            name='ck_project_baseline_valid',
+            name='project_baseline_valid',
         ),
         Index('ix_project_site', 'site_id'),
         Index('ix_project_status', 'status'),
@@ -210,11 +211,11 @@ class NetworkPlan(TimestampMixin, Base):
         ),
         CheckConstraint(
             f'approval_status IN ({",".join(repr(s.value) for s in ApprovalStatus)})',
-            name='ck_network_plan_approval_status_valid',
+            name='network_plan_approval_status_valid',
         ),
         CheckConstraint(
             f'scenario IN ({",".join(repr(s.value) for s in PlanScenario)})',
-            name='ck_network_plan_scenario_valid',
+            name='network_plan_scenario_valid',
         ),
         Index('ix_network_plan_program', 'program_id'),
         {'schema': 'pm'},
@@ -291,27 +292,27 @@ class NetworkPlanLine(TimestampMixin, Base):
         ),
         CheckConstraint(
             'EXTRACT(DAY FROM period_month) = 1',
-            name='ck_network_plan_line_period_month_first_day',
+            name='network_plan_line_period_month_first_day',
         ),
         CheckConstraint(
             'planned_sites_with_type >= 0',
-            name='ck_network_plan_line_sites_non_negative',
+            name='network_plan_line_sites_non_negative',
         ),
         CheckConstraint(
             'planned_new_stations >= 0',
-            name='ck_network_plan_line_stations_non_negative',
+            name='network_plan_line_stations_non_negative',
         ),
         CheckConstraint(
             'planned_new_ports >= 0',
-            name='ck_network_plan_line_ports_non_negative',
+            name='network_plan_line_ports_non_negative',
         ),
         CheckConstraint(
             'planned_new_power_kw >= 0',
-            name='ck_network_plan_line_power_non_negative',
+            name='network_plan_line_power_non_negative',
         ),
         CheckConstraint(
             'planned_capex_byn >= 0',
-            name='ck_network_plan_line_capex_non_negative',
+            name='network_plan_line_capex_non_negative',
         ),
         Index('ix_network_plan_line_plan', 'network_plan_id'),
         Index('ix_network_plan_line_month', 'period_month'),
@@ -336,7 +337,7 @@ class NetworkPlanLine(TimestampMixin, Base):
         comment='Planning month (first day of month)',
     )
     region_id: Mapped[int] = mapped_column(
-        Integer,
+        BigInteger,
         ForeignKey('ref.region.region_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the region',
@@ -404,15 +405,15 @@ class ProjectScope(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'planned_stations >= 0',
-            name='ck_project_scope_stations_non_negative',
+            name='project_scope_stations_non_negative',
         ),
         CheckConstraint(
             'planned_ports >= 0',
-            name='ck_project_scope_ports_non_negative',
+            name='project_scope_ports_non_negative',
         ),
         CheckConstraint(
             'planned_power_kw >= 0',
-            name='ck_project_scope_power_non_negative',
+            name='project_scope_power_non_negative',
         ),
         Index('ix_project_scope_project', 'project_id'),
         {'schema': 'pm'},
@@ -482,15 +483,15 @@ class StageExecution(TimestampMixin, Base):
         ),
         CheckConstraint(
             f'status IN ({",".join(repr(s.value) for s in StageExecutionStatus)})',
-            name='ck_stage_execution_status_valid',
+            name='stage_execution_status_valid',
         ),
         CheckConstraint(
             'baseline_finish IS NULL OR baseline_start IS NULL OR baseline_finish >= baseline_start',
-            name='ck_stage_execution_baseline_valid',
+            name='stage_execution_baseline_valid',
         ),
         CheckConstraint(
             'actual_finish IS NULL OR actual_start IS NULL OR actual_finish >= actual_start',
-            name='ck_stage_execution_actual_valid',
+            name='stage_execution_actual_valid',
         ),
         Index('ix_stage_execution_project', 'project_id'),
         Index('ix_stage_execution_status', 'status'),
@@ -620,7 +621,7 @@ class StageExecution(TimestampMixin, Base):
     def is_completed(self) -> bool:
         return self.status in (
             StageExecutionStatus.APPROVED,
-            StageExecutionStatus.APPROVED_CONDITIONS,
+            # StageExecutionStatus.APPROVED_CONDITIONS,
             StageExecutionStatus.CANCELLED,
         )
 
@@ -655,11 +656,11 @@ class StageDependency(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'predecessor_stage_id <> successor_stage_id',
-            name='ck_stage_dependency_no_self_reference',
+            name='stage_dependency_no_self_reference',
         ),
         CheckConstraint(
             'lag_days >= 0',
-            name='ck_stage_dependency_lag_non_negative',
+            name='stage_dependency_lag_non_negative',
         ),
         Index('ix_stage_dependency_predecessor', 'predecessor_stage_id'),
         Index('ix_stage_dependency_successor', 'successor_stage_id'),
@@ -710,7 +711,7 @@ class ProjectDocument(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'revision_no > 0',
-            name='ck_project_document_revision_positive',
+            name='project_document_revision_positive',
         ),
         Index('ix_project_document_project', 'project_id'),
         Index('ix_project_document_stage', 'stage_execution_id'),
@@ -820,7 +821,7 @@ class Permit(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             f'status IN ({",".join(repr(s.value) for s in PermitStatus)})',
-            name='ck_permit_status_valid',
+            name='permit_status_valid',
         ),
         Index('ix_permit_project', 'project_id'),
         Index('ix_permit_due', 'due_date', 'status'),
@@ -937,19 +938,19 @@ class Contract(TimestampMixin, Base):
         ),
         CheckConstraint(
             f'contract_type IN ({",".join(repr(t.value) for t in ContractType)})',
-            name='ck_contract_type_valid',
+            name='contract_type_valid',
         ),
         CheckConstraint(
             f'contract_status IN ({",".join(repr(s.value) for s in ContractStatus)})',
-            name='ck_contract_status_valid',
+            name='contract_status_valid',
         ),
         CheckConstraint(
             'contract_value_byn >= 0',
-            name='ck_contract_value_non_negative',
+            name='contract_value_non_negative',
         ),
         CheckConstraint(
             'actual_finish IS NULL OR signed_on IS NULL OR actual_finish >= signed_on',
-            name='ck_contract_finish_after_signed',
+            name='contract_finish_after_signed',
         ),
         Index('ix_contract_project', 'project_id'),
         Index('ix_contract_vendor', 'vendor_id'),
@@ -1061,11 +1062,11 @@ class PurchaseOrder(TimestampMixin, Base):
         ),
         CheckConstraint(
             f'status IN ({",".join(repr(s.value) for s in PurchaseOrderStatus)})',
-            name='ck_purchase_order_status_valid',
+            name='purchase_order_status_valid',
         ),
         CheckConstraint(
             'order_amount_byn >= 0',
-            name='ck_purchase_order_amount_non_negative',
+            name='purchase_order_amount_non_negative',
         ),
         Index('ix_purchase_order_project', 'project_id'),
         Index('ix_purchase_order_contract', 'contract_id'),
@@ -1152,7 +1153,7 @@ class Delivery(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             f'delivery_status IN ({",".join(repr(s.value) for s in DeliveryStatus)})',
-            name='ck_delivery_status_valid',
+            name='delivery_status_valid',
         ),
         Index('ix_delivery_po', 'po_id'),
         {'schema': 'pm'},
@@ -1222,7 +1223,7 @@ class DeliveryItem(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'quantity > 0',
-            name='ck_delivery_item_quantity_positive',
+            name='delivery_item_quantity_positive',
         ),
         Index('ix_delivery_item_delivery', 'delivery_id'),
         Index('ix_delivery_item_station', 'station_id'),
@@ -1287,19 +1288,19 @@ class ConstructionWork(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'weight_pct >= 0 AND weight_pct <= 100',
-            name='ck_construction_work_weight_valid',
+            name='construction_work_weight_valid',
         ),
         CheckConstraint(
             'progress_pct >= 0 AND progress_pct <= 100',
-            name='ck_construction_work_progress_valid',
+            name='construction_work_progress_valid',
         ),
         CheckConstraint(
             'planned_finish IS NULL OR planned_start IS NULL OR planned_finish >= planned_start',
-            name='ck_construction_work_planned_valid',
+            name='construction_work_planned_valid',
         ),
         CheckConstraint(
             'actual_finish IS NULL OR actual_start IS NULL OR actual_finish >= actual_start',
-            name='ck_construction_work_actual_valid',
+            name='construction_work_actual_valid',
         ),
         Index('ix_construction_work_project', 'project_id'),
         Index('ix_construction_work_contract', 'contract_id'),
@@ -1399,7 +1400,7 @@ class CommissioningTest(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             f'outcome IN ({",".join(repr(o.value) for o in TestOutcome)})',
-            name='ck_commissioning_test_outcome_valid',
+            name='commissioning_test_outcome_valid',
         ),
         Index('ix_commissioning_test_project', 'project_id'),
         Index('ix_commissioning_test_evse', 'evse_id'),
@@ -1489,19 +1490,19 @@ class Issue(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             f'kind IN ({",".join(repr(k.value) for k in IssueKind)})',
-            name='ck_issue_kind_valid',
+            name='issue_kind_valid',
         ),
         CheckConstraint(
             f'impact_level IN ({",".join(repr(level.value) for level in ImpactLevel)})',
-            name='ck_issue_impact_level_valid',
+            name='issue_impact_level_valid',
         ),
         CheckConstraint(
             f'status IN ({",".join(repr(s.value) for s in IssueStatus)})',
-            name='ck_issue_status_valid',
+            name='issue_status_valid',
         ),
         CheckConstraint(
             'estimated_cost_byn IS NULL OR estimated_cost_byn >= 0',
-            name='ck_issue_estimated_cost_non_negative',
+            name='issue_estimated_cost_non_negative',
         ),
         Index('ix_issue_project', 'project_id'),
         Index('ix_issue_stage', 'stage_execution_id'),
@@ -1604,6 +1605,10 @@ class Issue(TimestampMixin, Base):
 
     @property
     def is_open(self) -> bool:
+        return self.status == IssueStatus.OPEN
+
+    @property
+    def is_unresolved(self) -> bool:
         return self.status in (IssueStatus.OPEN, IssueStatus.IN_PROGRESS)
 
     @property
