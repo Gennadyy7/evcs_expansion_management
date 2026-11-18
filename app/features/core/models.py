@@ -32,6 +32,14 @@ from app.features.core.constants import (
 from app.features.reference.models import ChargerType, ConnectorType, Region, SiteType
 
 if TYPE_CHECKING:
+    from app.features.finance.models import (
+        CapexActual,
+        CapexAllocation,
+        OpexAllocation,
+        OpexEntry,
+        RevenueAllocation,
+        RevenueEntry,
+    )
     from app.features.pm.models import (
         CommissioningTest,
         DeliveryItem,
@@ -290,6 +298,18 @@ class Site(TimestampMixin, Base):
         lazy='raise',
         cascade='all, delete-orphan',
     )
+    opex_entries: Mapped[list[OpexEntry]] = relationship(
+        'OpexEntry',
+        back_populates='site',
+        lazy='raise',
+        cascade='all, delete-orphan',
+    )
+    revenue_entries: Mapped[list[RevenueEntry]] = relationship(
+        'RevenueEntry',
+        back_populates='site',
+        lazy='raise',
+        cascade='all, delete-orphan',
+    )
 
     def __repr__(self) -> str:
         return f"Site(code='{self.site_code}', name='{self.name_ru}', status='{self.site_status}')"
@@ -516,6 +536,36 @@ class ChargingStation(TimestampMixin, Base):
     )
     delivery_items: Mapped[list[DeliveryItem]] = relationship(
         'DeliveryItem',
+        back_populates='station',
+        lazy='raise',
+    )
+    capex_actuals: Mapped[list[CapexActual]] = relationship(
+        'CapexActual',
+        back_populates='station',
+        lazy='raise',
+    )
+    opex_entries: Mapped[list[OpexEntry]] = relationship(
+        'OpexEntry',
+        back_populates='station',
+        lazy='raise',
+    )
+    revenue_entries: Mapped[list[RevenueEntry]] = relationship(
+        'RevenueEntry',
+        back_populates='station',
+        lazy='raise',
+    )
+    capex_allocations: Mapped[list[CapexAllocation]] = relationship(
+        'CapexAllocation',
+        back_populates='station',
+        lazy='raise',
+    )
+    opex_allocations: Mapped[list[OpexAllocation]] = relationship(
+        'OpexAllocation',
+        back_populates='station',
+        lazy='raise',
+    )
+    revenue_allocations: Mapped[list[RevenueAllocation]] = relationship(
+        'RevenueAllocation',
         back_populates='station',
         lazy='raise',
     )

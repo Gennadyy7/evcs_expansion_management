@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from decimal import Decimal
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
@@ -38,6 +39,15 @@ from app.features.pm.constants import (
     TestOutcome,
 )
 from app.features.reference.models import ChargerType, ProjectStage, Region
+
+if TYPE_CHECKING:
+    from app.features.finance.models import (
+        BudgetRevision,
+        CapexActual,
+        CapexCommitment,
+        CapexForecastEac,
+        CapexPayment,
+    )
 
 
 class Project(TimestampMixin, Base):
@@ -177,6 +187,37 @@ class Project(TimestampMixin, Base):
     )
     issues: Mapped[list[Issue]] = relationship(
         'Issue',
+        back_populates='project',
+        lazy='raise',
+        cascade='all, delete-orphan',
+    )
+    budget_revisions: Mapped[list[BudgetRevision]] = relationship(
+        'BudgetRevision',
+        back_populates='project',
+        lazy='raise',
+        cascade='all, delete-orphan',
+        order_by='BudgetRevision.revision_no',
+    )
+    capex_commitments: Mapped[list[CapexCommitment]] = relationship(
+        'CapexCommitment',
+        back_populates='project',
+        lazy='raise',
+        cascade='all, delete-orphan',
+    )
+    capex_actuals: Mapped[list[CapexActual]] = relationship(
+        'CapexActual',
+        back_populates='project',
+        lazy='raise',
+        cascade='all, delete-orphan',
+    )
+    capex_payments: Mapped[list[CapexPayment]] = relationship(
+        'CapexPayment',
+        back_populates='project',
+        lazy='raise',
+        cascade='all, delete-orphan',
+    )
+    capex_forecasts: Mapped[list[CapexForecastEac]] = relationship(
+        'CapexForecastEac',
         back_populates='project',
         lazy='raise',
         cascade='all, delete-orphan',
@@ -1034,6 +1075,16 @@ class Contract(TimestampMixin, Base):
     )
     construction_works: Mapped[list[ConstructionWork]] = relationship(
         'ConstructionWork',
+        back_populates='contract',
+        lazy='raise',
+    )
+    capex_commitments: Mapped[list[CapexCommitment]] = relationship(
+        'CapexCommitment',
+        back_populates='contract',
+        lazy='raise',
+    )
+    capex_payments: Mapped[list[CapexPayment]] = relationship(
+        'CapexPayment',
         back_populates='contract',
         lazy='raise',
     )
