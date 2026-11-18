@@ -140,87 +140,93 @@ class Project(TimestampMixin, Base):
         'StageExecution',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
         order_by='StageExecution.stage_no',
     )
     scopes: Mapped[list[ProjectScope]] = relationship(
         'ProjectScope',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
     documents: Mapped[list[ProjectDocument]] = relationship(
         'ProjectDocument',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
     permits: Mapped[list[Permit]] = relationship(
         'Permit',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
     contracts: Mapped[list[Contract]] = relationship(
         'Contract',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
     purchase_orders: Mapped[list[PurchaseOrder]] = relationship(
         'PurchaseOrder',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
     construction_works: Mapped[list[ConstructionWork]] = relationship(
         'ConstructionWork',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
     commissioning_tests: Mapped[list[CommissioningTest]] = relationship(
         'CommissioningTest',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
     issues: Mapped[list[Issue]] = relationship(
         'Issue',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
     budget_revisions: Mapped[list[BudgetRevision]] = relationship(
         'BudgetRevision',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
         order_by='BudgetRevision.revision_no',
     )
     capex_commitments: Mapped[list[CapexCommitment]] = relationship(
         'CapexCommitment',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
     )
     capex_actuals: Mapped[list[CapexActual]] = relationship(
         'CapexActual',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
     )
     capex_payments: Mapped[list[CapexPayment]] = relationship(
         'CapexPayment',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
     )
     capex_forecasts: Mapped[list[CapexForecastEac]] = relationship(
         'CapexForecastEac',
         back_populates='project',
         lazy='raise',
-        cascade='all, delete-orphan',
     )
 
     def __repr__(self) -> str:
@@ -306,7 +312,8 @@ class NetworkPlan(TimestampMixin, Base):
         'NetworkPlanLine',
         back_populates='network_plan',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
         order_by='NetworkPlanLine.period_month',
     )
 
@@ -629,27 +636,27 @@ class StageExecution(TimestampMixin, Base):
         'ProjectDocument',
         back_populates='stage_execution',
         lazy='raise',
-        cascade='all, delete-orphan',
     )
     issues: Mapped[list[Issue]] = relationship(
         'Issue',
         back_populates='stage_execution',
         lazy='raise',
-        cascade='all, delete-orphan',
     )
     successor_dependencies: Mapped[list[StageDependency]] = relationship(
         'StageDependency',
         foreign_keys='StageDependency.predecessor_stage_id',
         back_populates='predecessor_stage',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
     predecessor_dependencies: Mapped[list[StageDependency]] = relationship(
         'StageDependency',
         foreign_keys='StageDependency.successor_stage_id',
         back_populates='successor_stage',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
 
     def __repr__(self) -> str:
@@ -1071,7 +1078,6 @@ class Contract(TimestampMixin, Base):
         'PurchaseOrder',
         back_populates='contract',
         lazy='raise',
-        cascade='all, delete-orphan',
     )
     construction_works: Mapped[list[ConstructionWork]] = relationship(
         'ConstructionWork',
@@ -1188,7 +1194,8 @@ class PurchaseOrder(TimestampMixin, Base):
         'Delivery',
         back_populates='purchase_order',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
 
     def __repr__(self) -> str:

@@ -83,7 +83,8 @@ class BudgetRevision(TimestampMixin, Base):
         'CapexBudget',
         back_populates='budget_revision',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
         order_by='CapexBudget.period_month',
     )
 
@@ -356,7 +357,8 @@ class CapexActual(TimestampMixin, Base):
         'CapexAllocation',
         back_populates='capex_actual',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
 
     def __repr__(self) -> str:
@@ -651,7 +653,8 @@ class OpexEntry(TimestampMixin, Base):
         'OpexAllocation',
         back_populates='opex_entry',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
 
     def __repr__(self) -> str:
@@ -796,7 +799,8 @@ class RevenueEntry(TimestampMixin, Base):
         'RevenueAllocation',
         back_populates='revenue_entry',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
 
     def __repr__(self) -> str:

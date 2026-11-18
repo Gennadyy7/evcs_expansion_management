@@ -146,7 +146,6 @@ class Program(TimestampMixin, Base):
         'NetworkPlan',
         back_populates='program',
         lazy='raise',
-        cascade='all, delete-orphan',
     )
 
     def __repr__(self) -> str:
@@ -278,37 +277,38 @@ class Site(TimestampMixin, Base):
         'ChargingStation',
         back_populates='site',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
     grid_connections: Mapped[list[GridConnection]] = relationship(
         'GridConnection',
         back_populates='site',
         lazy='raise',
-        cascade='all, delete-orphan',
+        cascade='all',
+        passive_deletes=True,
     )
     capacity_history: Mapped[list[SiteCapacityHistory]] = relationship(
         'SiteCapacityHistory',
         back_populates='site',
         lazy='raise',
+        cascade='all',
+        passive_deletes=True,
         order_by='SiteCapacityHistory.valid_from.desc()',
     )
     projects: Mapped[list[Project]] = relationship(
         'Project',
         back_populates='site',
         lazy='raise',
-        cascade='all, delete-orphan',
     )
     opex_entries: Mapped[list[OpexEntry]] = relationship(
         'OpexEntry',
         back_populates='site',
         lazy='raise',
-        cascade='all, delete-orphan',
     )
     revenue_entries: Mapped[list[RevenueEntry]] = relationship(
         'RevenueEntry',
         back_populates='site',
         lazy='raise',
-        cascade='all, delete-orphan',
     )
 
     def __repr__(self) -> str:
