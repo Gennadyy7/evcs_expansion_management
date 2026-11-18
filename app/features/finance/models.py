@@ -9,6 +9,7 @@ from sqlalchemy import (
     ForeignKey,
     ForeignKeyConstraint,
     Index,
+    Integer,
     Numeric,
     SmallInteger,
     Text,
@@ -57,6 +58,7 @@ class BudgetRevision(TimestampMixin, Base):
         comment='Reference to the project',
     )
     revision_no: Mapped[int] = mapped_column(
+        Integer,
         nullable=False,
         comment='Sequential revision number within the project (1, 2, ...)',
     )
