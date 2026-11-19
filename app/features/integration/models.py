@@ -45,7 +45,7 @@ class SourceSystem(TimestampMixin, Base):
         UniqueConstraint('code', name='uq_source_system_code'),
         CheckConstraint(
             f'system_kind IN ({",".join(repr(k.value) for k in SourceSystemKind)})',
-            name='source_system_kind_valid',
+            name='kind_valid',
         ),
         {'schema': 'integration'},
     )
@@ -110,7 +110,7 @@ class ExternalIdentity(TimestampMixin, Base):
         ),
         CheckConstraint(
             'num_nonnulls(site_id, station_id, evse_id, connector_id) = 1',
-            name='external_identity_exactly_one_target',
+            name='exactly_one_target',
         ),
         Index('ix_mapping_evse', 'evse_id'),
         Index('ix_mapping_station', 'station_id'),
@@ -230,19 +230,19 @@ class IngestionBatch(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             f'status IN ({",".join(repr(s.value) for s in IngestionBatchStatus)})',
-            name='ingestion_batch_status_valid',
+            name='status_valid',
         ),
         CheckConstraint(
             'records_received >= 0',
-            name='ingestion_batch_records_received_non_negative',
+            name='records_received_non_negative',
         ),
         CheckConstraint(
             'records_failed >= 0',
-            name='ingestion_batch_records_failed_non_negative',
+            name='records_failed_non_negative',
         ),
         CheckConstraint(
             'ended_at IS NULL OR ended_at >= started_at',
-            name='ingestion_batch_period_valid',
+            name='period_valid',
         ),
         Index(
             'ix_ingestion_batch_source_started', 'source_system_id', desc('started_at')
@@ -356,7 +356,7 @@ class InboxEvent(TimestampMixin, Base):
         ),
         CheckConstraint(
             f'processing_status IN ({",".join(repr(s.value) for s in InboxEventStatus)})',
-            name='inbox_event_processing_status_valid',
+            name='processing_status_valid',
         ),
         Index('ix_inbox_pending', 'processing_status', 'received_at'),
         Index('ix_inbox_event_event_time', 'event_time'),

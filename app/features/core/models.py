@@ -99,7 +99,7 @@ class Program(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'period_end IS NULL OR period_start IS NULL OR period_end >= period_start',
-            name='program_period_valid',
+            name='period_valid',
         ),
         {'schema': 'core'},
     )
@@ -158,19 +158,19 @@ class Site(TimestampMixin, Base):
         UniqueConstraint('site_code', name='uq_site_code'),
         CheckConstraint(
             'latitude IS NULL OR (latitude >= -90 AND latitude <= 90)',
-            name='site_latitude_valid',
+            name='latitude_valid',
         ),
         CheckConstraint(
             'longitude IS NULL OR (longitude >= -180 AND longitude <= 180)',
-            name='site_longitude_valid',
+            name='longitude_valid',
         ),
         CheckConstraint(
             'investment_priority BETWEEN 1 AND 3',
-            name='site_investment_priority_valid',
+            name='investment_priority_valid',
         ),
         CheckConstraint(
             f'site_status IN ({",".join(repr(s.value) for s in SiteStatus)})',
-            name='site_status_valid',
+            name='status_valid',
         ),
         Index('ix_site_region_status', 'region_id', 'site_status'),
         Index('ix_site_program', 'program_id'),
@@ -328,15 +328,15 @@ class GridConnection(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'requested_power_kw >= 0',
-            name='grid_connection_requested_power_valid',
+            name='requested_power_valid',
         ),
         CheckConstraint(
             'contracted_power_kw >= 0',
-            name='grid_connection_contracted_power_valid',
+            name='contracted_power_valid',
         ),
         CheckConstraint(
             'approved_power_kw >= 0',
-            name='grid_connection_approved_power_valid',
+            name='approved_power_valid',
         ),
         Index('ix_grid_site', 'site_id'),
         {'schema': 'core'},
@@ -428,21 +428,21 @@ class ChargingStation(TimestampMixin, Base):
         ),
         CheckConstraint(
             'rated_total_power_kw > 0',
-            name='station_rated_power_positive',
+            name='rated_power_positive',
         ),
         CheckConstraint(
             'simultaneous_power_limit_kw IS NULL OR simultaneous_power_limit_kw > 0',
-            name='station_simultaneous_power_positive',
+            name='simultaneous_power_positive',
         ),
         # Ensure simultaneous limit never exceeds rated capacity so COALESCE in SQL views
         # matches effective_power_kw = min(rated, simultaneous) in application logic.
         CheckConstraint(
             'simultaneous_power_limit_kw IS NULL OR simultaneous_power_limit_kw <= rated_total_power_kw',
-            name='station_simultaneous_power_within_rated',
+            name='simultaneous_power_within_rated',
         ),
         CheckConstraint(
             'retired_at IS NULL OR commissioned_at IS NULL OR retired_at >= commissioned_at',
-            name='station_retired_after_commissioned',
+            name='retired_after_commissioned',
         ),
         Index('ix_station_site_type', 'site_id', 'charger_type_id'),
         {'schema': 'core'},
@@ -595,19 +595,19 @@ class Evse(TimestampMixin, Base):
         ),
         CheckConstraint(
             'position_number > 0',
-            name='evse_position_positive',
+            name='position_positive',
         ),
         CheckConstraint(
             'nominal_power_kw > 0',
-            name='evse_nominal_power_positive',
+            name='nominal_power_positive',
         ),
         CheckConstraint(
             f'current_kind IN ({",".join(repr(c.value) for c in CurrentKind)})',
-            name='evse_current_kind_valid',
+            name='current_kind_valid',
         ),
         CheckConstraint(
             'retired_at IS NULL OR commissioned_at IS NULL OR retired_at >= commissioned_at',
-            name='evse_retired_after_commissioned',
+            name='retired_after_commissioned',
         ),
         Index('ix_evse_station', 'station_id'),
         {'schema': 'core'},
@@ -702,7 +702,7 @@ class Connector(TimestampMixin, Base):
         ),
         CheckConstraint(
             'rated_power_kw IS NULL OR rated_power_kw > 0',
-            name='connector_rated_power_positive',
+            name='rated_power_positive',
         ),
         {'schema': 'core'},
     )
@@ -755,23 +755,23 @@ class SiteCapacityHistory(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'installed_station_power_kw >= 0',
-            name='capacity_installed_power_valid',
+            name='installed_power_valid',
         ),
         CheckConstraint(
             'simultaneous_power_limit_kw IS NULL OR simultaneous_power_limit_kw >= 0',
-            name='capacity_simultaneous_power_valid',
+            name='simultaneous_power_valid',
         ),
         CheckConstraint(
             'grid_limit_kw IS NULL OR grid_limit_kw >= 0',
-            name='capacity_grid_limit_valid',
+            name='grid_limit_valid',
         ),
         CheckConstraint(
             'ports_count >= 0',
-            name='capacity_ports_count_valid',
+            name='ports_count_valid',
         ),
         CheckConstraint(
             'valid_to IS NULL OR valid_to > valid_from',
-            name='capacity_valid_period',
+            name='valid_period',
         ),
         Index('ix_capacity_site_valid', 'site_id', desc('valid_from')),
         {'schema': 'core'},

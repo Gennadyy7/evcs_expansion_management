@@ -34,11 +34,11 @@ class BudgetRevision(TimestampMixin, Base):
         ),
         CheckConstraint(
             'revision_no > 0',
-            name='budget_revision_no_positive',
+            name='revision_no_positive',
         ),
         CheckConstraint(
             f'revision_status IN ({",".join(repr(s.value) for s in RevisionStatus)})',
-            name='budget_revision_status_valid',
+            name='status_valid',
         ),
         Index('ix_budget_revision_project', 'project_id'),
         Index('ix_budget_revision_status', 'revision_status'),
@@ -116,15 +116,15 @@ class CapexBudget(TimestampMixin, Base):
         ),
         CheckConstraint(
             "cost_kind = 'CAPEX'",
-            name='capex_budget_kind_capex',
+            name='kind_capex',
         ),
         CheckConstraint(
             'EXTRACT(DAY FROM period_month) = 1',
-            name='capex_budget_period_first_day',
+            name='period_first_day',
         ),
         CheckConstraint(
             'budget_amount_byn >= 0',
-            name='capex_budget_amount_non_negative',
+            name='amount_non_negative',
         ),
         Index('ix_capex_budget_revision', 'budget_revision_id'),
         Index('ix_capex_budget_period', 'period_month'),
@@ -190,11 +190,11 @@ class CapexCommitment(TimestampMixin, Base):
         UniqueConstraint('erp_line_id', name='uq_capex_commitment_erp_line'),
         CheckConstraint(
             "cost_kind = 'CAPEX'",
-            name='capex_commitment_kind_capex',
+            name='kind_capex',
         ),
         CheckConstraint(
             'amount_byn <> 0',
-            name='capex_commitment_amount_non_zero',
+            name='amount_non_zero',
         ),
         Index('ix_capex_commitment_project', 'project_id'),
         Index('ix_capex_commitment_contract', 'contract_id'),
@@ -277,11 +277,11 @@ class CapexActual(TimestampMixin, Base):
         ),
         CheckConstraint(
             "cost_kind = 'CAPEX'",
-            name='capex_actual_kind_capex',
+            name='kind_capex',
         ),
         CheckConstraint(
             'amount_byn <> 0',
-            name='capex_actual_amount_non_zero',
+            name='amount_non_zero',
         ),
         Index('ix_capex_actual_project_date', 'project_id', 'posted_on'),
         {'schema': 'finance'},
@@ -377,7 +377,7 @@ class CapexAllocation(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'allocated_amount_byn <> 0',
-            name='capex_allocation_amount_non_zero',
+            name='amount_non_zero',
         ),
         {'schema': 'finance'},
     )
@@ -429,7 +429,7 @@ class CapexPayment(TimestampMixin, Base):
         UniqueConstraint('erp_payment_id', name='uq_capex_payment_erp_id'),
         CheckConstraint(
             'amount_byn <> 0',
-            name='capex_payment_amount_non_zero',
+            name='amount_non_zero',
         ),
         Index('ix_capex_payment_project', 'project_id'),
         Index('ix_capex_payment_contract', 'contract_id'),
@@ -505,11 +505,11 @@ class CapexForecastEac(TimestampMixin, Base):
         ),
         CheckConstraint(
             "cost_kind = 'CAPEX'",
-            name='capex_forecast_eac_kind_capex',
+            name='kind_capex',
         ),
         CheckConstraint(
             'eac_total_byn >= 0',
-            name='capex_forecast_eac_non_negative',
+            name='non_negative',
         ),
         Index('ix_capex_forecast_eac_project', 'project_id'),
         {'schema': 'finance'},
@@ -578,11 +578,11 @@ class OpexEntry(TimestampMixin, Base):
         ),
         CheckConstraint(
             "cost_kind = 'OPEX'",
-            name='opex_entry_kind_opex',
+            name='kind_opex',
         ),
         CheckConstraint(
             'amount_byn <> 0',
-            name='opex_entry_amount_non_zero',
+            name='amount_non_zero',
         ),
         Index('ix_opex_site_date', 'site_id', 'posted_on'),
         {'schema': 'finance'},
@@ -673,7 +673,7 @@ class OpexAllocation(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'allocated_amount_byn <> 0',
-            name='opex_allocation_amount_non_zero',
+            name='amount_non_zero',
         ),
         {'schema': 'finance'},
     )
@@ -729,11 +729,11 @@ class RevenueEntry(TimestampMixin, Base):
         ),
         CheckConstraint(
             'net_revenue_byn <> 0',
-            name='revenue_entry_amount_non_zero',
+            name='amount_non_zero',
         ),
         CheckConstraint(
             f'entry_type IN ({",".join(repr(t.value) for t in RevenueEntryType)})',
-            name='revenue_entry_type_valid',
+            name='type_valid',
         ),
         Index('ix_revenue_site_date', 'site_id', 'recognized_on'),
         {'schema': 'finance'},
@@ -819,7 +819,7 @@ class RevenueAllocation(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'allocated_amount_byn <> 0',
-            name='revenue_allocation_amount_non_zero',
+            name='amount_non_zero',
         ),
         {'schema': 'finance'},
     )

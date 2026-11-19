@@ -56,15 +56,15 @@ class Project(TimestampMixin, Base):
         UniqueConstraint('project_code', name='uq_project_code'),
         CheckConstraint(
             f'project_type IN ({",".join(repr(t.value) for t in ProjectType)})',
-            name='project_type_valid',
+            name='type_valid',
         ),
         CheckConstraint(
             f'status IN ({",".join(repr(s.value) for s in ProjectStatus)})',
-            name='project_status_valid',
+            name='status_valid',
         ),
         CheckConstraint(
             'baseline_finish IS NULL OR baseline_start IS NULL OR baseline_finish >= baseline_start',
-            name='project_baseline_valid',
+            name='baseline_valid',
         ),
         Index('ix_project_site', 'site_id'),
         Index('ix_project_status', 'status'),
@@ -258,11 +258,11 @@ class NetworkPlan(TimestampMixin, Base):
         ),
         CheckConstraint(
             f'approval_status IN ({",".join(repr(s.value) for s in ApprovalStatus)})',
-            name='network_plan_approval_status_valid',
+            name='approval_status_valid',
         ),
         CheckConstraint(
             f'scenario IN ({",".join(repr(s.value) for s in PlanScenario)})',
-            name='network_plan_scenario_valid',
+            name='scenario_valid',
         ),
         Index('ix_network_plan_program', 'program_id'),
         {'schema': 'pm'},
@@ -340,27 +340,27 @@ class NetworkPlanLine(TimestampMixin, Base):
         ),
         CheckConstraint(
             'EXTRACT(DAY FROM period_month) = 1',
-            name='network_plan_line_period_month_first_day',
+            name='period_month_first_day',
         ),
         CheckConstraint(
             'planned_sites_with_type >= 0',
-            name='network_plan_line_sites_non_negative',
+            name='sites_non_negative',
         ),
         CheckConstraint(
             'planned_new_stations >= 0',
-            name='network_plan_line_stations_non_negative',
+            name='stations_non_negative',
         ),
         CheckConstraint(
             'planned_new_ports >= 0',
-            name='network_plan_line_ports_non_negative',
+            name='ports_non_negative',
         ),
         CheckConstraint(
             'planned_new_power_kw >= 0',
-            name='network_plan_line_power_non_negative',
+            name='power_non_negative',
         ),
         CheckConstraint(
             'planned_capex_byn >= 0',
-            name='network_plan_line_capex_non_negative',
+            name='capex_non_negative',
         ),
         Index('ix_network_plan_line_plan', 'network_plan_id'),
         Index('ix_network_plan_line_month', 'period_month'),
@@ -453,15 +453,15 @@ class ProjectScope(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'planned_stations >= 0',
-            name='project_scope_stations_non_negative',
+            name='stations_non_negative',
         ),
         CheckConstraint(
             'planned_ports >= 0',
-            name='project_scope_ports_non_negative',
+            name='ports_non_negative',
         ),
         CheckConstraint(
             'planned_power_kw >= 0',
-            name='project_scope_power_non_negative',
+            name='power_non_negative',
         ),
         Index('ix_project_scope_project', 'project_id'),
         {'schema': 'pm'},
@@ -531,15 +531,15 @@ class StageExecution(TimestampMixin, Base):
         ),
         CheckConstraint(
             f'status IN ({",".join(repr(s.value) for s in StageExecutionStatus)})',
-            name='stage_execution_status_valid',
+            name='status_valid',
         ),
         CheckConstraint(
             'baseline_finish IS NULL OR baseline_start IS NULL OR baseline_finish >= baseline_start',
-            name='stage_execution_baseline_valid',
+            name='baseline_valid',
         ),
         CheckConstraint(
             'actual_finish IS NULL OR actual_start IS NULL OR actual_finish >= actual_start',
-            name='stage_execution_actual_valid',
+            name='actual_valid',
         ),
         Index('ix_stage_execution_project', 'project_id'),
         Index('ix_stage_execution_status', 'status'),
@@ -704,11 +704,11 @@ class StageDependency(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'predecessor_stage_id <> successor_stage_id',
-            name='stage_dependency_no_self_reference',
+            name='no_self_reference',
         ),
         CheckConstraint(
             'lag_days >= 0',
-            name='stage_dependency_lag_non_negative',
+            name='lag_non_negative',
         ),
         Index('ix_stage_dependency_predecessor', 'predecessor_stage_id'),
         Index('ix_stage_dependency_successor', 'successor_stage_id'),
@@ -759,7 +759,7 @@ class ProjectDocument(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'revision_no > 0',
-            name='project_document_revision_positive',
+            name='revision_positive',
         ),
         Index('ix_project_document_project', 'project_id'),
         Index('ix_project_document_stage', 'stage_execution_id'),
@@ -869,7 +869,7 @@ class Permit(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             f'status IN ({",".join(repr(s.value) for s in PermitStatus)})',
-            name='permit_status_valid',
+            name='status_valid',
         ),
         Index('ix_permit_project', 'project_id'),
         Index('ix_permit_due', 'due_date', 'status'),
@@ -986,19 +986,19 @@ class Contract(TimestampMixin, Base):
         ),
         CheckConstraint(
             f'contract_type IN ({",".join(repr(t.value) for t in ContractType)})',
-            name='contract_type_valid',
+            name='type_valid',
         ),
         CheckConstraint(
             f'contract_status IN ({",".join(repr(s.value) for s in ContractStatus)})',
-            name='contract_status_valid',
+            name='status_valid',
         ),
         CheckConstraint(
             'contract_value_byn >= 0',
-            name='contract_value_non_negative',
+            name='value_non_negative',
         ),
         CheckConstraint(
             'actual_finish IS NULL OR signed_on IS NULL OR actual_finish >= signed_on',
-            name='contract_finish_after_signed',
+            name='finish_after_signed',
         ),
         Index('ix_contract_project', 'project_id'),
         Index('ix_contract_vendor', 'vendor_id'),
@@ -1119,11 +1119,11 @@ class PurchaseOrder(TimestampMixin, Base):
         ),
         CheckConstraint(
             f'status IN ({",".join(repr(s.value) for s in PurchaseOrderStatus)})',
-            name='purchase_order_status_valid',
+            name='status_valid',
         ),
         CheckConstraint(
             'order_amount_byn >= 0',
-            name='purchase_order_amount_non_negative',
+            name='amount_non_negative',
         ),
         Index('ix_purchase_order_project', 'project_id'),
         Index('ix_purchase_order_contract', 'contract_id'),
@@ -1211,7 +1211,7 @@ class Delivery(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             f'delivery_status IN ({",".join(repr(s.value) for s in DeliveryStatus)})',
-            name='delivery_status_valid',
+            name='status_valid',
         ),
         Index('ix_delivery_po', 'po_id'),
         {'schema': 'pm'},
@@ -1281,7 +1281,7 @@ class DeliveryItem(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'quantity > 0',
-            name='delivery_item_quantity_positive',
+            name='quantity_positive',
         ),
         Index('ix_delivery_item_delivery', 'delivery_id'),
         Index('ix_delivery_item_station', 'station_id'),
@@ -1346,19 +1346,19 @@ class ConstructionWork(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'weight_pct >= 0 AND weight_pct <= 100',
-            name='construction_work_weight_valid',
+            name='weight_valid',
         ),
         CheckConstraint(
             'progress_pct >= 0 AND progress_pct <= 100',
-            name='construction_work_progress_valid',
+            name='progress_valid',
         ),
         CheckConstraint(
             'planned_finish IS NULL OR planned_start IS NULL OR planned_finish >= planned_start',
-            name='construction_work_planned_valid',
+            name='planned_valid',
         ),
         CheckConstraint(
             'actual_finish IS NULL OR actual_start IS NULL OR actual_finish >= actual_start',
-            name='construction_work_actual_valid',
+            name='actual_valid',
         ),
         Index('ix_construction_work_project', 'project_id'),
         Index('ix_construction_work_contract', 'contract_id'),
@@ -1458,7 +1458,7 @@ class CommissioningTest(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             f'outcome IN ({",".join(repr(o.value) for o in TestOutcome)})',
-            name='commissioning_test_outcome_valid',
+            name='outcome_valid',
         ),
         Index('ix_commissioning_test_project', 'project_id'),
         Index('ix_commissioning_test_evse', 'evse_id'),
@@ -1548,19 +1548,19 @@ class Issue(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             f'kind IN ({",".join(repr(k.value) for k in IssueKind)})',
-            name='issue_kind_valid',
+            name='kind_valid',
         ),
         CheckConstraint(
             f'impact_level IN ({",".join(repr(level.value) for level in ImpactLevel)})',
-            name='issue_impact_level_valid',
+            name='impact_level_valid',
         ),
         CheckConstraint(
             f'status IN ({",".join(repr(s.value) for s in IssueStatus)})',
-            name='issue_status_valid',
+            name='status_valid',
         ),
         CheckConstraint(
             'estimated_cost_byn IS NULL OR estimated_cost_byn >= 0',
-            name='issue_estimated_cost_non_negative',
+            name='estimated_cost_non_negative',
         ),
         Index('ix_issue_project', 'project_id'),
         Index('ix_issue_stage', 'stage_execution_id'),
