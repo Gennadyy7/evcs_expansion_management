@@ -12,6 +12,7 @@ from app.core.database import Base
 import app.features.core.models
 import app.features.finance.models
 import app.features.integration.models
+import app.features.ops.models
 import app.features.pm.models
 import app.features.reference.models  # noqa: F401
 
@@ -19,7 +20,7 @@ config = context.config
 
 target_metadata = Base.metadata
 
-SCHEMAS = ('ref', 'core', 'pm', 'integration', 'finance')
+SCHEMAS = ('ref', 'core', 'pm', 'integration', 'finance', 'ops')
 
 
 def include_name(
