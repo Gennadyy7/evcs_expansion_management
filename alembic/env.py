@@ -19,7 +19,7 @@ config = context.config
 
 target_metadata = Base.metadata
 
-SCHEMAS = ('ref', 'core', 'integration', 'pm', 'finance')
+SCHEMAS = ('ref', 'core', 'pm', 'integration', 'finance')
 
 
 def include_name(
