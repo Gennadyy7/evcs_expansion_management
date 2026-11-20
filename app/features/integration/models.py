@@ -142,25 +142,25 @@ class ExternalIdentity(TimestampMixin, Base):
     )
     site_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.site.site_id', ondelete='CASCADE'),
+        ForeignKey('core.site.site_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Target site (mutually exclusive with station/evse/connector)',
     )
     station_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.charging_station.station_id', ondelete='CASCADE'),
+        ForeignKey('core.charging_station.station_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Target charging station (mutually exclusive)',
     )
     evse_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.evse.evse_id', ondelete='CASCADE'),
+        ForeignKey('core.evse.evse_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Target EVSE (mutually exclusive)',
     )
     connector_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.connector.connector_id', ondelete='CASCADE'),
+        ForeignKey('core.connector.connector_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Target connector (mutually exclusive)',
     )

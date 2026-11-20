@@ -78,7 +78,7 @@ class ChargingSession(TimestampMixin, Base):
     )
     connector_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.connector.connector_id', ondelete='SET NULL'),
+        ForeignKey('core.connector.connector_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Optional reference to the specific connector used',
     )
@@ -372,7 +372,7 @@ class Alarm(TimestampMixin, Base):
     )
     evse_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.evse.evse_id', ondelete='SET NULL'),
+        ForeignKey('core.evse.evse_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Optional reference to the specific EVSE involved',
     )
@@ -380,7 +380,7 @@ class Alarm(TimestampMixin, Base):
         Uuid,
         ForeignKey(
             'integration.source_system.source_system_id',
-            ondelete='SET NULL',
+            ondelete='RESTRICT',
         ),
         nullable=True,
         comment='Source system that emitted the alarm',

@@ -36,7 +36,7 @@ class Region(TimestampMixin, Base):
     )
     parent_region_id: Mapped[int | None] = mapped_column(
         BigInteger,
-        ForeignKey('ref.region.region_id', ondelete='SET NULL'),
+        ForeignKey('ref.region.region_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Parent region (for hierarchy)',
     )

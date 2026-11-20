@@ -53,7 +53,7 @@ class BudgetRevision(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
@@ -139,7 +139,7 @@ class CapexBudget(TimestampMixin, Base):
     )
     budget_revision_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('finance.budget_revision.budget_revision_id', ondelete='CASCADE'),
+        ForeignKey('finance.budget_revision.budget_revision_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the budget revision',
     )
@@ -209,13 +209,13 @@ class CapexCommitment(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
     contract_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('pm.contract.contract_id', ondelete='SET NULL'),
+        ForeignKey('pm.contract.contract_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the signed contract',
     )
@@ -295,13 +295,13 @@ class CapexActual(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
     station_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.charging_station.station_id', ondelete='SET NULL'),
+        ForeignKey('core.charging_station.station_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Direct station attribution (NULL = site-level, needs allocation)',
     )
@@ -328,7 +328,7 @@ class CapexActual(TimestampMixin, Base):
     )
     source_system_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('integration.source_system.source_system_id', ondelete='SET NULL'),
+        ForeignKey('integration.source_system.source_system_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Source system that originated this fact',
     )
@@ -384,13 +384,13 @@ class CapexAllocation(TimestampMixin, Base):
 
     capex_actual_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('finance.capex_actual.capex_actual_id', ondelete='CASCADE'),
+        ForeignKey('finance.capex_actual.capex_actual_id', ondelete='RESTRICT'),
         primary_key=True,
         comment='Reference to the CAPEX actual fact',
     )
     station_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('core.charging_station.station_id', ondelete='CASCADE'),
+        ForeignKey('core.charging_station.station_id', ondelete='RESTRICT'),
         primary_key=True,
         comment='Reference to the station receiving the allocation',
     )
@@ -444,13 +444,13 @@ class CapexPayment(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
     contract_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('pm.contract.contract_id', ondelete='SET NULL'),
+        ForeignKey('pm.contract.contract_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the contract being paid',
     )
@@ -523,7 +523,7 @@ class CapexForecastEac(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
@@ -596,13 +596,13 @@ class OpexEntry(TimestampMixin, Base):
     )
     site_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('core.site.site_id', ondelete='CASCADE'),
+        ForeignKey('core.site.site_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the site',
     )
     station_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.charging_station.station_id', ondelete='SET NULL'),
+        ForeignKey('core.charging_station.station_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Direct station attribution (NULL = site-level, needs allocation)',
     )
@@ -629,7 +629,7 @@ class OpexEntry(TimestampMixin, Base):
     )
     source_system_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('integration.source_system.source_system_id', ondelete='SET NULL'),
+        ForeignKey('integration.source_system.source_system_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Source system that originated this entry',
     )
@@ -680,13 +680,13 @@ class OpexAllocation(TimestampMixin, Base):
 
     opex_entry_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('finance.opex_entry.opex_entry_id', ondelete='CASCADE'),
+        ForeignKey('finance.opex_entry.opex_entry_id', ondelete='RESTRICT'),
         primary_key=True,
         comment='Reference to the OPEX entry',
     )
     station_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('core.charging_station.station_id', ondelete='CASCADE'),
+        ForeignKey('core.charging_station.station_id', ondelete='RESTRICT'),
         primary_key=True,
         comment='Reference to the station receiving the allocation',
     )
@@ -747,13 +747,13 @@ class RevenueEntry(TimestampMixin, Base):
     )
     site_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('core.site.site_id', ondelete='CASCADE'),
+        ForeignKey('core.site.site_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the site',
     )
     station_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.charging_station.station_id', ondelete='SET NULL'),
+        ForeignKey('core.charging_station.station_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Direct station attribution (NULL = site-level, needs allocation)',
     )
@@ -769,7 +769,7 @@ class RevenueEntry(TimestampMixin, Base):
     )
     source_system_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('integration.source_system.source_system_id', ondelete='SET NULL'),
+        ForeignKey('integration.source_system.source_system_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Source system that originated this entry',
     )
@@ -826,13 +826,13 @@ class RevenueAllocation(TimestampMixin, Base):
 
     revenue_entry_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('finance.revenue_entry.revenue_entry_id', ondelete='CASCADE'),
+        ForeignKey('finance.revenue_entry.revenue_entry_id', ondelete='RESTRICT'),
         primary_key=True,
         comment='Reference to the revenue entry',
     )
     station_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('core.charging_station.station_id', ondelete='CASCADE'),
+        ForeignKey('core.charging_station.station_id', ondelete='RESTRICT'),
         primary_key=True,
         comment='Reference to the station receiving the allocation',
     )

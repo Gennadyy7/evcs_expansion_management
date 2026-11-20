@@ -190,19 +190,19 @@ class Site(TimestampMixin, Base):
     )
     program_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.program.program_id', ondelete='SET NULL'),
+        ForeignKey('core.program.program_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the development program',
     )
     region_id: Mapped[int | None] = mapped_column(
         BigInteger,
-        ForeignKey('ref.region.region_id', ondelete='SET NULL'),
+        ForeignKey('ref.region.region_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the region',
     )
     site_type_id: Mapped[int | None] = mapped_column(
         SmallInteger,
-        ForeignKey('ref.site_type.site_type_id', ondelete='SET NULL'),
+        ForeignKey('ref.site_type.site_type_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to site type (city, highway, mall, etc.)',
     )
@@ -228,7 +228,7 @@ class Site(TimestampMixin, Base):
     )
     land_owner_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.organization.organization_id', ondelete='SET NULL'),
+        ForeignKey('core.organization.organization_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the land owner organization',
     )
@@ -350,13 +350,13 @@ class GridConnection(TimestampMixin, Base):
     )
     site_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('core.site.site_id', ondelete='CASCADE'),
+        ForeignKey('core.site.site_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the site',
     )
     utility_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.organization.organization_id', ondelete='SET NULL'),
+        ForeignKey('core.organization.organization_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the utility organization',
     )
@@ -456,7 +456,7 @@ class ChargingStation(TimestampMixin, Base):
     )
     site_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('core.site.site_id', ondelete='CASCADE'),
+        ForeignKey('core.site.site_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the site',
     )
@@ -467,7 +467,7 @@ class ChargingStation(TimestampMixin, Base):
     )
     charger_type_id: Mapped[int] = mapped_column(
         SmallInteger,
-        ForeignKey('ref.charger_type.charger_type_id'),
+        ForeignKey('ref.charger_type.charger_type_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to charger type (AC, HYBRID, DC, OTHER)',
     )
@@ -621,7 +621,7 @@ class Evse(TimestampMixin, Base):
     )
     station_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('core.charging_station.station_id', ondelete='CASCADE'),
+        ForeignKey('core.charging_station.station_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the charging station',
     )
@@ -715,7 +715,7 @@ class Connector(TimestampMixin, Base):
     )
     evse_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('core.evse.evse_id', ondelete='CASCADE'),
+        ForeignKey('core.evse.evse_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the EVSE',
     )
@@ -726,7 +726,7 @@ class Connector(TimestampMixin, Base):
     )
     connector_type_id: Mapped[int] = mapped_column(
         SmallInteger,
-        ForeignKey('ref.connector_type.connector_type_id'),
+        ForeignKey('ref.connector_type.connector_type_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to connector type (TYPE2, CCS2, CHADEMO, etc.)',
     )
@@ -785,7 +785,7 @@ class SiteCapacityHistory(TimestampMixin, Base):
     )
     site_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('core.site.site_id', ondelete='CASCADE'),
+        ForeignKey('core.site.site_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the site',
     )

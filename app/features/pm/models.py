@@ -375,7 +375,7 @@ class NetworkPlanLine(TimestampMixin, Base):
     )
     network_plan_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.network_plan.network_plan_id', ondelete='CASCADE'),
+        ForeignKey('pm.network_plan.network_plan_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the network plan',
     )
@@ -469,7 +469,7 @@ class ProjectScope(TimestampMixin, Base):
 
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         primary_key=True,
         comment='Reference to the project',
     )
@@ -556,7 +556,7 @@ class StageExecution(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
@@ -599,7 +599,7 @@ class StageExecution(TimestampMixin, Base):
     )
     responsible_organization_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.organization.organization_id', ondelete='SET NULL'),
+        ForeignKey('core.organization.organization_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Responsible organization for this stage',
     )
@@ -717,13 +717,13 @@ class StageDependency(TimestampMixin, Base):
 
     predecessor_stage_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.stage_execution.stage_execution_id', ondelete='CASCADE'),
+        ForeignKey('pm.stage_execution.stage_execution_id', ondelete='RESTRICT'),
         primary_key=True,
         comment='Predecessor stage (must finish before successor starts)',
     )
     successor_stage_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.stage_execution.stage_execution_id', ondelete='CASCADE'),
+        ForeignKey('pm.stage_execution.stage_execution_id', ondelete='RESTRICT'),
         primary_key=True,
         comment='Successor stage (starts after predecessor finishes)',
     )
@@ -776,13 +776,13 @@ class ProjectDocument(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
     stage_execution_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('pm.stage_execution.stage_execution_id', ondelete='SET NULL'),
+        ForeignKey('pm.stage_execution.stage_execution_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the stage this document belongs to',
     )
@@ -884,7 +884,7 @@ class Permit(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
@@ -921,13 +921,13 @@ class Permit(TimestampMixin, Base):
     )
     document_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('pm.project_document.document_id', ondelete='SET NULL'),
+        ForeignKey('pm.project_document.document_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the permit document',
     )
     responsible_organization_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.organization.organization_id', ondelete='SET NULL'),
+        ForeignKey('core.organization.organization_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Organization responsible for obtaining this permit',
     )
@@ -1013,7 +1013,7 @@ class Contract(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
@@ -1034,7 +1034,7 @@ class Contract(TimestampMixin, Base):
     )
     vendor_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.organization.organization_id', ondelete='SET NULL'),
+        ForeignKey('core.organization.organization_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the vendor/contractor organization',
     )
@@ -1138,13 +1138,13 @@ class PurchaseOrder(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
     contract_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('pm.contract.contract_id', ondelete='SET NULL'),
+        ForeignKey('pm.contract.contract_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the contract',
     )
@@ -1225,7 +1225,7 @@ class Delivery(TimestampMixin, Base):
     )
     po_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.purchase_order.po_id', ondelete='CASCADE'),
+        ForeignKey('pm.purchase_order.po_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the purchase order',
     )
@@ -1247,7 +1247,7 @@ class Delivery(TimestampMixin, Base):
     )
     acceptance_document_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('pm.project_document.document_id', ondelete='SET NULL'),
+        ForeignKey('pm.project_document.document_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the acceptance document',
     )
@@ -1296,7 +1296,7 @@ class DeliveryItem(TimestampMixin, Base):
     )
     delivery_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.delivery.delivery_id', ondelete='CASCADE'),
+        ForeignKey('pm.delivery.delivery_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the delivery',
     )
@@ -1318,7 +1318,7 @@ class DeliveryItem(TimestampMixin, Base):
     )
     station_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.charging_station.station_id', ondelete='SET NULL'),
+        ForeignKey('core.charging_station.station_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the charging station this equipment belongs to',
     )
@@ -1373,7 +1373,7 @@ class ConstructionWork(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
@@ -1420,7 +1420,7 @@ class ConstructionWork(TimestampMixin, Base):
     )
     contract_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('pm.contract.contract_id', ondelete='SET NULL'),
+        ForeignKey('pm.contract.contract_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the construction contract',
     )
@@ -1473,13 +1473,13 @@ class CommissioningTest(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
     evse_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.evse.evse_id', ondelete='SET NULL'),
+        ForeignKey('core.evse.evse_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the EVSE being tested',
     )
@@ -1501,7 +1501,7 @@ class CommissioningTest(TimestampMixin, Base):
     )
     document_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('pm.project_document.document_id', ondelete='SET NULL'),
+        ForeignKey('pm.project_document.document_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the test report document',
     )
@@ -1577,13 +1577,13 @@ class Issue(TimestampMixin, Base):
     )
     project_id: Mapped[UUID] = mapped_column(
         Uuid,
-        ForeignKey('pm.project.project_id', ondelete='CASCADE'),
+        ForeignKey('pm.project.project_id', ondelete='RESTRICT'),
         nullable=False,
         comment='Reference to the project',
     )
     stage_execution_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('pm.stage_execution.stage_execution_id', ondelete='SET NULL'),
+        ForeignKey('pm.stage_execution.stage_execution_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Reference to the stage this issue relates to',
     )
@@ -1610,7 +1610,7 @@ class Issue(TimestampMixin, Base):
     )
     owner_organization_id: Mapped[UUID | None] = mapped_column(
         Uuid,
-        ForeignKey('core.organization.organization_id', ondelete='SET NULL'),
+        ForeignKey('core.organization.organization_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Organization responsible for resolving this issue',
     )
