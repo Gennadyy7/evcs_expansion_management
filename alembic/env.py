@@ -9,30 +9,18 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
 from app.core.config import settings
 from app.core.database import Base
-from app.features.core.models import (  # noqa: F401
-    ChargingStation,
-    Connector,
-    Evse,
-    GridConnection,
-    Organization,
-    Program,
-    Site,
-    SiteCapacityHistory,
-)
-from app.features.reference.models import (  # noqa: F401
-    ChargerType,
-    ConnectorType,
-    CostCategory,
-    ProjectStage,
-    Region,
-    SiteType,
-)
+import app.features.core.models
+import app.features.finance.models
+import app.features.integration.models
+import app.features.ops.models
+import app.features.pm.models
+import app.features.reference.models  # noqa: F401
 
 config = context.config
 
 target_metadata = Base.metadata
 
-SCHEMAS = ('core', 'ref')
+SCHEMAS = ('ref', 'core', 'pm', 'integration', 'finance', 'ops')
 
 
 def include_name(

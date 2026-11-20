@@ -1,0 +1,115 @@
+from enum import StrEnum
+
+
+class ProjectType(StrEnum):
+    NEW_BUILD = 'NEW_BUILD'
+    EXPANSION = 'EXPANSION'
+    UPGRADE = 'UPGRADE'
+    RELOCATION = 'RELOCATION'
+    REPLACEMENT = 'REPLACEMENT'
+
+
+class ProjectStatus(StrEnum):
+    PLANNED = 'PLANNED'
+    ACTIVE = 'ACTIVE'
+    BLOCKED = 'BLOCKED'
+    ON_HOLD = 'ON_HOLD'
+    COMPLETED = 'COMPLETED'
+    CANCELLED = 'CANCELLED'
+
+
+class ApprovalStatus(StrEnum):
+    DRAFT = 'DRAFT'
+    APPROVED = 'APPROVED'
+    SUPERSEDED = 'SUPERSEDED'
+
+
+class PlanScenario(StrEnum):
+    BASE = 'BASE'
+    OPTIMISTIC = 'OPTIMISTIC'
+    PESSIMISTIC = 'PESSIMISTIC'
+
+
+class StageExecutionStatus(StrEnum):
+    NOT_STARTED = 'NOT_STARTED'
+    IN_PROGRESS = 'IN_PROGRESS'
+    AWAITING_INPUT = 'AWAITING_INPUT'
+    BLOCKED = 'BLOCKED'
+    READY_FOR_GATE = 'READY_FOR_GATE'
+    APPROVED = 'APPROVED'
+    APPROVED_CONDITIONS = 'APPROVED_CONDITIONS'
+    REWORK = 'REWORK'
+    CANCELLED = 'CANCELLED'
+
+
+class ContractType(StrEnum):
+    SUPPLY = 'SUPPLY'
+    CONSTRUCTION = 'CONSTRUCTION'
+    GRID = 'GRID'
+    LAND = 'LAND'
+    MAINTENANCE = 'MAINTENANCE'
+    IT = 'IT'
+    OTHER = 'OTHER'
+
+
+class ContractStatus(StrEnum):
+    DRAFT = 'DRAFT'
+    SIGNED = 'SIGNED'
+    ACTIVE = 'ACTIVE'
+    COMPLETED = 'COMPLETED'
+    TERMINATED = 'TERMINATED'
+    CANCELLED = 'CANCELLED'
+
+
+class PurchaseOrderStatus(StrEnum):
+    ORDERED = 'ORDERED'
+    CONFIRMED = 'CONFIRMED'
+    IN_TRANSIT = 'IN_TRANSIT'
+    DELIVERED = 'DELIVERED'
+    ACCEPTED = 'ACCEPTED'
+    CANCELLED = 'CANCELLED'
+
+
+class DeliveryStatus(StrEnum):
+    IN_TRANSIT = 'IN_TRANSIT'
+    DELIVERED = 'DELIVERED'
+    ACCEPTED = 'ACCEPTED'
+    REJECTED = 'REJECTED'
+    PARTIAL = 'PARTIAL'
+
+
+class PermitStatus(StrEnum):
+    NOT_STARTED = 'NOT_STARTED'
+    IN_PROGRESS = 'IN_PROGRESS'
+    SUBMITTED = 'SUBMITTED'
+    APPROVED = 'APPROVED'
+    REJECTED = 'REJECTED'
+    EXPIRED = 'EXPIRED'
+
+
+class TestOutcome(StrEnum):
+    PENDING = 'PENDING'
+    PASS = 'PASS'
+    FAIL = 'FAIL'
+    WAIVED = 'WAIVED'
+
+
+class IssueKind(StrEnum):
+    RISK = 'RISK'
+    ISSUE = 'ISSUE'
+    CHANGE = 'CHANGE'
+
+
+class ImpactLevel(StrEnum):
+    LOW = 'LOW'
+    MEDIUM = 'MEDIUM'
+    HIGH = 'HIGH'
+    CRITICAL = 'CRITICAL'
+
+
+class IssueStatus(StrEnum):
+    OPEN = 'OPEN'
+    IN_PROGRESS = 'IN_PROGRESS'
+    RESOLVED = 'RESOLVED'
+    CLOSED = 'CLOSED'
+    CANCELLED = 'CANCELLED'

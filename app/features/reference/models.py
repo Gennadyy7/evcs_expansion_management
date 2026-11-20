@@ -36,7 +36,7 @@ class Region(TimestampMixin, Base):
     )
     parent_region_id: Mapped[int | None] = mapped_column(
         BigInteger,
-        ForeignKey('ref.region.region_id', ondelete='SET NULL'),
+        ForeignKey('ref.region.region_id', ondelete='RESTRICT'),
         nullable=True,
         comment='Parent region (for hierarchy)',
     )
@@ -62,7 +62,7 @@ class ChargerType(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             "code IN ('AC','HYBRID','DC','OTHER')",
-            name='charger_type_code_check',
+            name='code_check',
         ),
         {'schema': 'ref'},
     )
@@ -148,7 +148,7 @@ class CostCategory(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             "cost_kind IN ('CAPEX','OPEX')",
-            name='cost_category_kind_check',
+            name='kind_check',
         ),
         UniqueConstraint(
             'cost_kind',
@@ -202,7 +202,7 @@ class ProjectStage(TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint(
             'stage_no BETWEEN 0 AND 13',
-            name='project_stage_no_check',
+            name='stage_no_check',
         ),
         {'schema': 'ref'},
     )
