@@ -4328,13 +4328,13 @@ def upgrade() -> None:
                """)
 
     op.execute("""
-               INSERT INTO integration.source_system(code, name_ru, system_kind)
-               VALUES ('CPMS', 'Действующая платформа управления ЭЗС', 'CPMS'),
-                      ('ERP', 'Корпоративная ERP', 'ERP'),
-                      ('BILLING', 'Корпоративная биллинговая система', 'BILLING'),
-                      ('EDMS', 'Электронный документооборот', 'EDMS'),
-                      ('GIS', 'Геоинформационная система', 'GIS'),
-                      ('CRM', 'Корпоративная CRM', 'CRM') ON CONFLICT (code) DO NOTHING;
+               INSERT INTO integration.source_system(source_system_id, code, name_ru, system_kind)
+               VALUES (gen_random_uuid(), 'CPMS', 'Действующая платформа управления ЭЗС', 'CPMS'),
+                      (gen_random_uuid(), 'ERP', 'Корпоративная ERP', 'ERP'),
+                      (gen_random_uuid(), 'BILLING', 'Корпоративная биллинговая система', 'BILLING'),
+                      (gen_random_uuid(), 'EDMS', 'Электронный документооборот', 'EDMS'),
+                      (gen_random_uuid(), 'GIS', 'Геоинформационная система', 'GIS'),
+                      (gen_random_uuid(), 'CRM', 'Корпоративная CRM', 'CRM') ON CONFLICT (code) DO NOTHING;
                """)
 
     op.execute("""
