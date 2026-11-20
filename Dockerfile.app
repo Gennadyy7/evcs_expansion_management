@@ -29,6 +29,7 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY app/ ./app/
 COPY alembic/ ./alembic/
 # COPY alembic.ini ./alembic.ini  # using pyproject.toml-based config
+COPY pyproject.toml ./pyproject.toml
 COPY entrypoint.sh ./entrypoint.sh
 
 # Start as root so entrypoint can chown the shared bind mount, then gosu drops to appuser.
