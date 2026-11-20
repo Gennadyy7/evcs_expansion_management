@@ -4375,6 +4375,330 @@ def upgrade() -> None:
                                    GROUP BY st.site_id) cn ON cn.site_id = s.site_id;
                """)
 
+    op.execute("""
+        CREATE OR REPLACE VIEW mart.v_project_issues AS
+        SELECT project_id,
+               COUNT(*) FILTER (WHERE status = 'OPEN') AS open_issues,
+               COUNT(*) FILTER (WHERE status = 'OPEN' AND impact_level IN ('HIGH','CRITICAL')) AS critical_issues
+        FROM pm.issue
+        GROUP BY project_id;
+    """)
+
+    op.execute("""
+        CREATE OR REPLACE VIEW mart.v_project_progress AS
+        WITH stages AS (
+            SELECT project_id,
+                   count(*) FILTER (WHERE status = 'APPROVED') AS approved_stages,
+                   count(*) FILTER (WHERE status = 'BLOCKED') AS blocked_stages,
+                   min(stage_no) FILTER (WHERE status NOT IN ('APPROVED','CANCELLED')) AS first_unapproved_stage
+            FROM pm.stage_execution
+            GROUP BY project_id
+        )
+        SELECT p.project_id, p.project_code, p.site_id, p.status AS project_status,
+               p.baseline_finish, p.forecast_finish,
+               (p.forecast_finish - p.baseline_finish) AS forecast_delay_days,
+               COALESCE(s.approved_stages, 0) AS approved_stages,
+               COALESCE(s.blocked_stages, 0) AS blocked_stages,
+               s.first_unapproved_stage,
+               COALESCE(i.open_issues, 0) AS open_issues,
+               COALESCE(i.critical_issues, 0) AS critical_issues
+        FROM pm.project p
+        LEFT JOIN stages s ON s.project_id = p.project_id
+        LEFT JOIN mart.v_project_issues i ON i.project_id = p.project_id;
+    """)
+
+    op.execute("""
+        CREATE OR REPLACE VIEW mart.v_project_capex AS
+        WITH latest_approved AS (
+            SELECT DISTINCT ON (project_id) project_id, budget_revision_id
+            FROM finance.budget_revision
+            WHERE revision_status = 'APPROVED'
+            ORDER BY project_id, revision_no DESC
+        ), budget AS (
+            SELECT b.project_id, SUM(l.budget_amount_byn) AS budget_byn
+            FROM latest_approved b
+            JOIN finance.capex_budget l ON l.budget_revision_id = b.budget_revision_id
+            GROUP BY b.project_id
+        ), actual AS (
+            SELECT project_id, SUM(amount_byn) AS actual_byn
+            FROM finance.capex_actual
+            GROUP BY project_id
+        ), paid AS (
+            SELECT project_id, SUM(amount_byn) AS paid_byn
+            FROM finance.capex_payment
+            GROUP BY project_id
+        ), committed AS (
+            SELECT project_id, SUM(amount_byn) AS committed_byn
+            FROM finance.capex_commitment
+            GROUP BY project_id
+        ), latest_eac AS (
+            SELECT DISTINCT ON (project_id, category_id) project_id, category_id, eac_total_byn
+            FROM finance.capex_forecast_eac
+            ORDER BY project_id, category_id, as_of_date DESC
+        ), eac AS (
+            SELECT project_id, SUM(eac_total_byn) AS eac_byn
+            FROM latest_eac
+            GROUP BY project_id
+        )
+        SELECT p.project_id, p.site_id,
+               b.budget_byn, a.actual_byn, pa.paid_byn, c.committed_byn, e.eac_byn,
+               CASE WHEN b.budget_byn > 0 AND e.eac_byn IS NOT NULL
+                    THEN ROUND(100 * (e.eac_byn - b.budget_byn) / b.budget_byn, 2)
+               END AS eac_variance_pct
+        FROM pm.project p
+        LEFT JOIN budget b ON b.project_id = p.project_id
+        LEFT JOIN actual a ON a.project_id = p.project_id
+        LEFT JOIN paid pa ON pa.project_id = p.project_id
+        LEFT JOIN committed c ON c.project_id = p.project_id
+        LEFT JOIN eac e ON e.project_id = p.project_id;
+    """)
+
+    op.execute("""
+        CREATE OR REPLACE VIEW mart.v_station_daily AS
+        SELECT st.station_id, st.site_id, st.charger_type_id, d.service_date,
+               SUM(d.energy_kwh) AS energy_kwh,
+               SUM(d.sessions_count) AS sessions_count,
+               SUM(d.service_minutes) AS service_minutes,
+               SUM(d.available_minutes) AS available_minutes,
+               SUM(d.outage_minutes) AS outage_minutes,
+               COUNT(*) AS reporting_ports,
+               LEAST(COALESCE(st.simultaneous_power_limit_kw, st.rated_total_power_kw),
+                     SUM(d.power_kw_snapshot)) * MAX(d.service_minutes) / 60.0 AS theoretical_energy_kwh
+        FROM ops.evse_daily d
+        JOIN core.evse e ON e.evse_id = d.evse_id
+        JOIN core.charging_station st ON st.station_id = e.station_id
+        GROUP BY st.station_id, st.site_id, st.charger_type_id, d.service_date,
+                 st.simultaneous_power_limit_kw, st.rated_total_power_kw;
+    """)
+
+    op.execute("""
+        CREATE OR REPLACE VIEW mart.v_site_monthly AS
+        WITH energy AS (
+            SELECT site_id, date_trunc('month', service_date)::date AS month,
+                   SUM(energy_kwh) AS energy_kwh,
+                   SUM(sessions_count) AS sessions_count,
+                   SUM(service_minutes) AS service_minutes,
+                   SUM(available_minutes) AS available_minutes,
+                   SUM(outage_minutes) AS outage_minutes,
+                   SUM(theoretical_energy_kwh) AS theoretical_energy_kwh,
+                   SUM(reporting_ports) AS reporting_port_days
+            FROM mart.v_station_daily
+            GROUP BY site_id, date_trunc('month', service_date)::date
+        ), revenue AS (
+            SELECT site_id, date_trunc('month', recognized_on)::date AS month,
+                   SUM(net_revenue_byn) AS revenue_byn, COUNT(*) AS lines
+            FROM finance.revenue_entry
+            GROUP BY site_id, date_trunc('month', recognized_on)::date
+        ), opex AS (
+            SELECT site_id, date_trunc('month', posted_on)::date AS month,
+                   SUM(amount_byn) AS opex_byn, COUNT(*) AS lines
+            FROM finance.opex_entry
+            GROUP BY site_id, date_trunc('month', posted_on)::date
+        ), capex AS (
+            SELECT p.site_id, date_trunc('month', a.posted_on)::date AS month,
+                   SUM(a.amount_byn) AS capex_actual_byn
+            FROM finance.capex_actual a
+            JOIN pm.project p ON p.project_id = a.project_id
+            GROUP BY p.site_id, date_trunc('month', a.posted_on)::date
+        ), periods AS (
+            SELECT site_id, month FROM energy
+            UNION
+            SELECT site_id, month FROM revenue
+            UNION
+            SELECT site_id, month FROM opex
+            UNION
+            SELECT site_id, month FROM capex
+        )
+        SELECT k.site_id, k.month,
+               en.energy_kwh, en.sessions_count, en.reporting_port_days,
+               en.service_minutes, en.available_minutes, en.outage_minutes,
+               CASE WHEN en.service_minutes > 0
+                    THEN ROUND(100.0 * en.available_minutes / en.service_minutes, 2)
+               END AS availability_pct,
+               CASE WHEN en.theoretical_energy_kwh > 0
+                    THEN ROUND(100.0 * en.energy_kwh / en.theoretical_energy_kwh, 2)
+               END AS utilization_pct,
+               rv.revenue_byn, op.opex_byn, ca.capex_actual_byn,
+               CASE WHEN rv.lines > 0 AND op.lines > 0
+                    THEN rv.revenue_byn - op.opex_byn
+               END AS ebitda_byn,
+               CASE WHEN en.sessions_count > 0
+                    THEN ROUND(en.energy_kwh / en.sessions_count, 2)
+               END AS kwh_per_session,
+               CASE WHEN en.reporting_port_days > 0
+                    THEN ROUND(en.energy_kwh / en.reporting_port_days, 2)
+               END AS kwh_per_port_day,
+               (rv.lines > 0) AS revenue_data_present,
+               (op.lines > 0) AS opex_data_present
+        FROM periods k
+        LEFT JOIN energy en ON en.site_id = k.site_id AND en.month = k.month
+        LEFT JOIN revenue rv ON rv.site_id = k.site_id AND rv.month = k.month
+        LEFT JOIN opex op ON op.site_id = k.site_id AND op.month = k.month
+        LEFT JOIN capex ca ON ca.site_id = k.site_id AND ca.month = k.month;
+    """)
+
+    op.execute("""
+        CREATE OR REPLACE VIEW mart.v_type_monthly AS
+        WITH energy AS (
+            SELECT charger_type_id, date_trunc('month', service_date)::date AS month,
+                   SUM(energy_kwh) AS energy_kwh,
+                   SUM(sessions_count) AS sessions_count,
+                   SUM(available_minutes) AS available_minutes,
+                   SUM(service_minutes) AS service_minutes,
+                   SUM(theoretical_energy_kwh) AS theoretical_kwh,
+                   SUM(reporting_ports) AS reporting_port_days
+            FROM mart.v_station_daily
+            GROUP BY charger_type_id, date_trunc('month', service_date)::date
+        ), revenue_station AS (
+            SELECT re.station_id, re.recognized_on, re.net_revenue_byn AS amount_byn
+            FROM finance.revenue_entry re
+            WHERE re.station_id IS NOT NULL
+            UNION ALL
+            SELECT a.station_id, re.recognized_on, a.allocated_amount_byn
+            FROM finance.revenue_allocation a
+            JOIN finance.revenue_entry re USING(revenue_entry_id)
+            WHERE re.station_id IS NULL
+        ), revenue AS (
+            SELECT st.charger_type_id, date_trunc('month', rs.recognized_on)::date AS month,
+                   SUM(rs.amount_byn) AS revenue_byn
+            FROM revenue_station rs
+            JOIN core.charging_station st ON st.station_id = rs.station_id
+            GROUP BY st.charger_type_id, date_trunc('month', rs.recognized_on)::date
+        ), opex_station AS (
+            SELECT oe.station_id, oe.posted_on, oe.amount_byn
+            FROM finance.opex_entry oe
+            WHERE oe.station_id IS NOT NULL
+            UNION ALL
+            SELECT a.station_id, oe.posted_on, a.allocated_amount_byn
+            FROM finance.opex_allocation a
+            JOIN finance.opex_entry oe USING(opex_entry_id)
+            WHERE oe.station_id IS NULL
+        ), opex AS (
+            SELECT st.charger_type_id, date_trunc('month', os.posted_on)::date AS month,
+                   SUM(os.amount_byn) AS opex_byn
+            FROM opex_station os
+            JOIN core.charging_station st ON st.station_id = os.station_id
+            GROUP BY st.charger_type_id, date_trunc('month', os.posted_on)::date
+        ), capex_station AS (
+            SELECT a.station_id, a.posted_on, a.amount_byn
+            FROM finance.capex_actual a
+            WHERE a.station_id IS NOT NULL
+            UNION ALL
+            SELECT x.station_id, a.posted_on, x.allocated_amount_byn
+            FROM finance.capex_allocation x
+            JOIN finance.capex_actual a USING(capex_actual_id)
+            WHERE a.station_id IS NULL
+        ), capex AS (
+            SELECT st.charger_type_id, date_trunc('month', cs.posted_on)::date AS month,
+                   SUM(cs.amount_byn) AS capex_byn
+            FROM capex_station cs
+            JOIN core.charging_station st ON st.station_id = cs.station_id
+            GROUP BY st.charger_type_id, date_trunc('month', cs.posted_on)::date
+        ), periods AS (
+            SELECT charger_type_id, month FROM energy
+            UNION
+            SELECT charger_type_id, month FROM revenue
+            UNION
+            SELECT charger_type_id, month FROM opex
+            UNION
+            SELECT charger_type_id, month FROM capex
+        )
+        SELECT typ.code AS charger_type, p.month,
+               en.energy_kwh, en.sessions_count, en.reporting_port_days,
+               CASE WHEN en.theoretical_kwh > 0
+                    THEN ROUND(100.0 * en.energy_kwh / en.theoretical_kwh, 2)
+               END AS utilization_pct,
+               CASE WHEN en.service_minutes > 0
+                    THEN ROUND(100.0 * en.available_minutes / en.service_minutes, 2)
+               END AS availability_pct,
+               rv.revenue_byn, op.opex_byn, cap.capex_byn,
+               CASE WHEN rv.revenue_byn IS NOT NULL AND op.opex_byn IS NOT NULL
+                    THEN rv.revenue_byn - op.opex_byn
+               END AS ebitda_byn
+        FROM periods p
+        JOIN ref.charger_type typ ON typ.charger_type_id = p.charger_type_id
+        LEFT JOIN energy en ON en.charger_type_id = p.charger_type_id AND en.month = p.month
+        LEFT JOIN revenue rv ON rv.charger_type_id = p.charger_type_id AND rv.month = p.month
+        LEFT JOIN opex op ON op.charger_type_id = p.charger_type_id AND op.month = p.month
+        LEFT JOIN capex cap ON cap.charger_type_id = p.charger_type_id AND cap.month = p.month;
+    """)
+
+    op.execute("""
+        CREATE OR REPLACE VIEW mart.v_site_investment AS
+        WITH capex AS (
+            SELECT site_id,
+                   SUM(actual_byn) AS invested_byn,
+                   SUM(budget_byn) AS approved_budget_byn,
+                   SUM(eac_byn) AS forecast_total_byn
+            FROM mart.v_project_capex
+            GROUP BY site_id
+        ), last_12 AS (
+            SELECT site_id,
+                   SUM(revenue_byn) AS revenue_12m_byn,
+                   SUM(opex_byn) AS opex_12m_byn,
+                   SUM(ebitda_byn) AS ebitda_12m_byn,
+                   COUNT(*) FILTER (WHERE revenue_data_present AND opex_data_present) AS complete_finance_months,
+                   SUM(energy_kwh) AS energy_12m_kwh
+            FROM mart.v_site_monthly
+            WHERE month >= date_trunc('month', CURRENT_DATE)::date - INTERVAL '12 months'
+              AND month < date_trunc('month', CURRENT_DATE)::date
+            GROUP BY site_id
+        )
+        SELECT i.site_id, i.site_code, i.site_status, i.stations_count, i.ports_count,
+               i.installed_station_power_kw, i.simultaneous_power_kw,
+               c.invested_byn, c.approved_budget_byn, c.forecast_total_byn,
+               l.revenue_12m_byn, l.opex_12m_byn, l.energy_12m_kwh, l.complete_finance_months,
+               CASE WHEN l.complete_finance_months = 12 THEN l.ebitda_12m_byn END AS ebitda_12m_byn,
+               CASE WHEN c.invested_byn > 0 AND l.complete_finance_months = 12 AND l.ebitda_12m_byn > 0
+                    THEN ROUND(c.invested_byn / l.ebitda_12m_byn, 2)
+               END AS simple_payback_years,
+               CASE WHEN i.ports_count > 0
+                    THEN ROUND(c.invested_byn / i.ports_count, 2)
+               END AS capex_per_port_byn
+        FROM mart.v_site_inventory i
+        LEFT JOIN capex c ON c.site_id = i.site_id
+        LEFT JOIN last_12 l ON l.site_id = i.site_id;
+    """)
+
+    op.execute("""
+        CREATE OR REPLACE VIEW mart.v_unallocated_finance AS
+        WITH c AS (
+            SELECT p.site_id, 'CAPEX'::text AS kind, a.capex_actual_id AS entry_id,
+                   a.amount_byn AS amount_byn, a.station_id,
+                   COALESCE(SUM(x.allocated_amount_byn), 0) AS allocated_byn
+            FROM finance.capex_actual a
+            JOIN pm.project p ON p.project_id = a.project_id
+            LEFT JOIN finance.capex_allocation x ON x.capex_actual_id = a.capex_actual_id
+            GROUP BY p.site_id, a.capex_actual_id
+        ), o AS (
+            SELECT e.site_id, 'OPEX'::text AS kind, e.opex_entry_id AS entry_id,
+                   e.amount_byn, e.station_id,
+                   COALESCE(SUM(x.allocated_amount_byn), 0) AS allocated_byn
+            FROM finance.opex_entry e
+            LEFT JOIN finance.opex_allocation x ON x.opex_entry_id = e.opex_entry_id
+            GROUP BY e.opex_entry_id
+        ), r AS (
+            SELECT e.site_id, 'REVENUE'::text AS kind, e.revenue_entry_id AS entry_id,
+                   e.net_revenue_byn AS amount_byn, e.station_id,
+                   COALESCE(SUM(x.allocated_amount_byn), 0) AS allocated_byn
+            FROM finance.revenue_entry e
+            LEFT JOIN finance.revenue_allocation x ON x.revenue_entry_id = e.revenue_entry_id
+            GROUP BY e.revenue_entry_id
+        ), all_entries AS (
+            SELECT * FROM c
+            UNION ALL
+            SELECT * FROM o
+            UNION ALL
+            SELECT * FROM r
+        )
+        SELECT site_id, kind,
+               COUNT(*) FILTER (WHERE station_id IS NULL AND allocated_byn <> amount_byn) AS unallocated_lines,
+               SUM(CASE WHEN station_id IS NULL THEN amount_byn - allocated_byn ELSE 0 END) AS unallocated_byn,
+               COUNT(*) FILTER (WHERE station_id IS NOT NULL AND allocated_byn <> 0) AS double_allocated_lines
+        FROM all_entries
+        GROUP BY site_id, kind;
+    """)
+
 
 def downgrade() -> None:
     """Downgrade schema."""
