@@ -13,12 +13,18 @@ class ConnectorTypeRepository(SQLAlchemyRepository[ConnectorType, int]):
         super().__init__(ConnectorType, session)
 
     async def get_by_code(self, code: str) -> ConnectorType | None:
-        logger.debug(f'[ConnectorType] Fetching connector type by code: {code}')
+        logger.debug(
+            f'[{self._model.__name__}] Fetching connector type by code: {code}'
+        )
         stmt = select(ConnectorType).where(ConnectorType.code == code)
         result = await self._session.execute(stmt)
         connector_type = result.scalar_one_or_none()
         if connector_type:
-            logger.debug(f'[ConnectorType] Found connector type with code: {code}')
+            logger.debug(
+                f'[{self._model.__name__}] Found connector type with code: {code}'
+            )
         else:
-            logger.debug(f'[ConnectorType] Connector type with code {code} not found')
+            logger.debug(
+                f'[{self._model.__name__}] Connector type with code {code} not found'
+            )
         return connector_type

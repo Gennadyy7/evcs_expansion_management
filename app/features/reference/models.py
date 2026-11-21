@@ -45,12 +45,12 @@ class Region(TimestampMixin, Base):
         'Region',
         remote_side=region_id,
         back_populates='children',
-        lazy='selectin',
+        lazy='raise',
     )
     children: Mapped[list[Region]] = relationship(
         'Region',
         back_populates='parent',
-        lazy='selectin',
+        lazy='raise',
     )
 
     def __repr__(self) -> str:

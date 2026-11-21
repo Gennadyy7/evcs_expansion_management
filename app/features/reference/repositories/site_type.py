@@ -13,12 +13,14 @@ class SiteTypeRepository(SQLAlchemyRepository[SiteType, int]):
         super().__init__(SiteType, session)
 
     async def get_by_code(self, code: str) -> SiteType | None:
-        logger.debug(f'[SiteType] Fetching site type by code: {code}')
+        logger.debug(f'[{self._model.__name__}] Fetching site type by code: {code}')
         stmt = select(SiteType).where(SiteType.code == code)
         result = await self._session.execute(stmt)
         site_type = result.scalar_one_or_none()
         if site_type:
-            logger.debug(f'[SiteType] Found site type with code: {code}')
+            logger.debug(f'[{self._model.__name__}] Found site type with code: {code}')
         else:
-            logger.debug(f'[SiteType] Site type with code {code} not found')
+            logger.debug(
+                f'[{self._model.__name__}] Site type with code {code} not found'
+            )
         return site_type

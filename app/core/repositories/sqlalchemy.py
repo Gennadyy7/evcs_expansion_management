@@ -2,7 +2,6 @@ from collections.abc import Sequence
 from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import Base
@@ -91,25 +90,16 @@ class SQLAlchemyRepository[T: Base, ID_contra: int | str | UUID](
         )
         return entity
 
-    async def delete(self, entity: T) -> bool:
+    async def delete(self, entity: T) -> None:
         session_id = hex(id(self._session))
         entity_id = getattr(entity, 'id', 'N/A')
         logger.debug(
             f'[{self._model.__name__}] Attempting to delete entity ID: {entity_id} '
             f'[Session ID: {session_id}]'
         )
-
-        try:
-            await self._session.delete(entity)
-            logger.debug(f'[{self._model.__name__}] Executing flush for delete')
-            await self._session.flush()
-            logger.debug(
-                f'[{self._model.__name__}] Entity ID: {entity_id} deleted successfully from DB'
-            )
-            return True
-        except SQLAlchemyError as e:
-            logger.exception(
-                f'[{self._model.__name__}] Failed to delete entity ID: {entity_id} '
-                f'[Session ID: {session_id}]. Error: {e}'
-            )
-            return False
+        await self._session.delete(entity)
+        logger.debug(f'[{self._model.__name__}] Executing flush for delete')
+        await self._session.flush()
+        logger.debug(
+            f'[{self._model.__name__}] Entity ID: {entity_id} deleted successfully from DB'
+        )
