@@ -1,4 +1,7 @@
 from collections.abc import AsyncGenerator, Callable
+from typing import Annotated
+
+from fastapi import Depends
 
 from app.core.database import db_manager
 from app.core.unit_of_work.protocol import UnitOfWorkProtocol
@@ -17,3 +20,5 @@ async def provide_sqlalchemy_uow() -> AsyncGenerator[UnitOfWorkProtocol]:
 
 
 get_uow = get_unit_of_work_factory(provide_sqlalchemy_uow)
+
+UnitOfWorkDep = Annotated[UnitOfWorkProtocol, Depends(get_uow)]

@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     DB_POOL_RECYCLE: int = 3600
     DB_ECHO: bool = False
 
+    API_PAGINATION_DEFAULT_LIMIT: int = Field(ge=1)
+    API_PAGINATION_MAX_LIMIT: int = Field(ge=1)
+
     @model_validator(mode='after')
     def validate_db_config(self) -> Self:
         if self.db_url_env:
