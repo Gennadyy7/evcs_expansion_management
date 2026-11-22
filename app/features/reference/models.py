@@ -64,7 +64,10 @@ class Region(TimestampMixin, Base):
             raise ValueError('depth must be >= 0')
         if depth == 0:
             return noload(cls.children)
-        return selectinload(cls.children, recursion_depth=depth)
+        loader = selectinload(Region.children)
+        for _ in range(depth - 1):
+            loader = loader.selectinload(Region.children)
+        return loader.noload(Region.children)
 
 
 class ChargerType(TimestampMixin, Base):
