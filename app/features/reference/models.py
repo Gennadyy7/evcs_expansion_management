@@ -9,7 +9,8 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, noload, relationship, selectinload
+from sqlalchemy.orm.interfaces import LoaderOption
 
 from app.core.database import Base, TimestampMixin
 
@@ -51,10 +52,19 @@ class Region(TimestampMixin, Base):
         'Region',
         back_populates='parent',
         lazy='raise',
+        order_by='Region.code',
     )
 
     def __repr__(self) -> str:
         return f"Region(region_id={self.region_id}, code='{self.code}')"
+
+    @classmethod
+    def tree_loader(cls, depth: int) -> LoaderOption:
+        if depth < 0:
+            raise ValueError('depth must be >= 0')
+        if depth == 0:
+            return noload(cls.children)
+        return selectinload(cls.children, recursion_depth=depth)
 
 
 class ChargerType(TimestampMixin, Base):
