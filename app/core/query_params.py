@@ -35,6 +35,7 @@ def resolve_sort_params(
             },
         )
 
+    resolved_sort_order: SortOrder
     if sort_order is None:
         resolved_sort_order = default_sort_order
     elif sort_order not in {'asc', 'desc'}:
