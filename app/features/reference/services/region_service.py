@@ -133,7 +133,7 @@ class RegionService:
             new_parent_id = int(raw_parent_id) if raw_parent_id is not None else None
 
             if new_parent_id is not None:
-                assert isinstance(new_parent_id, int)
+                new_parent_id: int  # type: ignore[no-redef]
                 if new_parent_id == region_id:
                     self._raise_self_parent(region_id)
 
