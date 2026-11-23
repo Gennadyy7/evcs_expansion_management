@@ -1,0 +1,27 @@
+"""User-facing Russian API messages for reference dictionaries."""
+
+from app.features.reference.constants import ReferenceErrorCode
+
+REFERENCE_MESSAGES: dict[str, str] = {
+    ReferenceErrorCode.REGION_NOT_FOUND: 'Регион не найден',
+    ReferenceErrorCode.REGION_CODE_ALREADY_EXISTS: (
+        'Регион с указанным кодом уже существует'
+    ),
+    ReferenceErrorCode.REGION_PARENT_NOT_FOUND: 'Родительский регион не найден',
+    ReferenceErrorCode.REGION_SELF_PARENT: (
+        'Регион не может быть родительским по отношению к самому себе'
+    ),
+    ReferenceErrorCode.REGION_CYCLE_DETECTED: (
+        'Обнаружена циклическая зависимость в иерархии регионов'
+    ),
+    ReferenceErrorCode.REGION_HAS_CHILDREN: (
+        'Невозможно удалить регион, так как у него есть дочерние регионы'
+    ),
+    ReferenceErrorCode.REGION_IN_USE: (
+        'Невозможно удалить регион, так как он используется в площадках или планах развития'
+    ),
+}
+
+
+def get_reference_message(code: str) -> str:
+    return REFERENCE_MESSAGES.get(code, code)
