@@ -140,7 +140,7 @@ class Program(TimestampMixin, Base):
     sites: Mapped[list[Site]] = relationship(
         'Site',
         back_populates='program',
-        lazy='selectin',
+        lazy='raise',
     )
     network_plans: Mapped[list[NetworkPlan]] = relationship(
         'NetworkPlan',
