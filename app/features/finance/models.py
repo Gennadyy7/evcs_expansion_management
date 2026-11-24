@@ -20,8 +20,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base, TimestampMixin
 from app.features.core.models import ChargingStation, Site
-from app.features.finance.constants import CostKind, RevenueEntryType, RevisionStatus
+from app.features.finance.constants import RevenueEntryType, RevisionStatus
 from app.features.pm.models import Contract, Project
+from app.features.reference.constants import CostKind
 
 
 class BudgetRevision(TimestampMixin, Base):
@@ -115,7 +116,7 @@ class CapexBudget(TimestampMixin, Base):
             name='uq_capex_budget_rev_cat_month',
         ),
         CheckConstraint(
-            "cost_kind = 'CAPEX'",
+            f"cost_kind = '{CostKind.CAPEX.value}'",
             name='kind_capex',
         ),
         CheckConstraint(
@@ -189,7 +190,7 @@ class CapexCommitment(TimestampMixin, Base):
         ),
         UniqueConstraint('erp_line_id', name='uq_capex_commitment_erp_line'),
         CheckConstraint(
-            "cost_kind = 'CAPEX'",
+            f"cost_kind = '{CostKind.CAPEX.value}'",
             name='kind_capex',
         ),
         CheckConstraint(
@@ -276,7 +277,7 @@ class CapexActual(TimestampMixin, Base):
             name='uq_capex_actual_source_line',
         ),
         CheckConstraint(
-            "cost_kind = 'CAPEX'",
+            f"cost_kind = '{CostKind.CAPEX.value}'",
             name='kind_capex',
         ),
         CheckConstraint(
@@ -504,7 +505,7 @@ class CapexForecastEac(TimestampMixin, Base):
             name='uq_capex_forecast_eac_project_cat_date',
         ),
         CheckConstraint(
-            "cost_kind = 'CAPEX'",
+            f"cost_kind = '{CostKind.CAPEX.value}'",
             name='kind_capex',
         ),
         CheckConstraint(
@@ -577,7 +578,7 @@ class OpexEntry(TimestampMixin, Base):
             name='uq_opex_entry_source_line',
         ),
         CheckConstraint(
-            "cost_kind = 'OPEX'",
+            f"cost_kind = '{CostKind.OPEX.value}'",
             name='kind_opex',
         ),
         CheckConstraint(

@@ -1,12 +1,9 @@
-from typing import Literal
-
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.features.reference.constants import CostKind
 from app.features.reference.schemas.base import TimestampedResponse
 
 _CODE_PATTERN = r'^[A-Z0-9_]+$'
-
-CostKind = Literal['CAPEX', 'OPEX']
 
 
 class CostCategoryBase(BaseModel):

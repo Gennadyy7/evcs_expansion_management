@@ -7,11 +7,6 @@ class RevisionStatus(StrEnum):
     SUPERSEDED = 'SUPERSEDED'
 
 
-class CostKind(StrEnum):
-    CAPEX = 'CAPEX'
-    OPEX = 'OPEX'
-
-
 class RevenueEntryType(StrEnum):
     CHARGE = 'CHARGE'
     REFUND = 'REFUND'

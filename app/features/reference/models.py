@@ -13,6 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column, noload, relationship, selectin
 from sqlalchemy.orm.interfaces import LoaderOption
 
 from app.core.database import Base, TimestampMixin
+from app.features.reference.constants import CostKind
 
 
 class Region(TimestampMixin, Base):
@@ -160,7 +161,7 @@ class CostCategory(TimestampMixin, Base):
     __tablename__ = 'cost_category'
     __table_args__ = (
         CheckConstraint(
-            "cost_kind IN ('CAPEX','OPEX')",
+            f'cost_kind IN ({",".join(repr(k.value) for k in CostKind)})',
             name='kind_check',
         ),
         UniqueConstraint(
@@ -203,11 +204,11 @@ class CostCategory(TimestampMixin, Base):
 
     @property
     def is_capex(self) -> bool:
-        return self.cost_kind == 'CAPEX'
+        return self.cost_kind == CostKind.CAPEX
 
     @property
     def is_opex(self) -> bool:
-        return self.cost_kind == 'OPEX'
+        return self.cost_kind == CostKind.OPEX
 
 
 class ProjectStage(TimestampMixin, Base):

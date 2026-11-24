@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
 from app.core.repositories.sqlalchemy import SQLAlchemyRepository
-from app.features.finance.constants import CostKind
+from app.features.reference.constants import CostKind
 from app.features.reference.models import CostCategory
 
 logger = get_logger(__name__)

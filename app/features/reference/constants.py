@@ -3,6 +3,11 @@ from enum import StrEnum
 from app.core.query_params import SortOrder
 
 
+class CostKind(StrEnum):
+    CAPEX = 'CAPEX'
+    OPEX = 'OPEX'
+
+
 class ReferenceErrorCode(StrEnum):
     REGION_NOT_FOUND = 'REGION_NOT_FOUND'
     REGION_CODE_ALREADY_EXISTS = 'REGION_CODE_ALREADY_EXISTS'
