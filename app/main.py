@@ -6,6 +6,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy import text
 import uvicorn
 
+from app import models as _models_registry  # noqa: F401
 from app.api import api_router
 from app.core.config import settings
 from app.core.database import db_manager

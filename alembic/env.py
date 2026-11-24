@@ -9,12 +9,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
 from app.core.config import settings
 from app.core.database import Base
-import app.features.core.models
-import app.features.finance.models
-import app.features.integration.models
-import app.features.ops.models
-import app.features.pm.models
-import app.features.reference.models  # noqa: F401
+import app.models  # noqa: F401
 
 config = context.config
 
