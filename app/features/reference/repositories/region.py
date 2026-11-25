@@ -18,6 +18,7 @@ from app.core.repositories.sqlalchemy import SQLAlchemyRepository
 from app.features.core.models import Site
 from app.features.pm.models import NetworkPlanLine
 from app.features.reference.models import Region
+from app.features.reference.repositories.utils import escape_like_pattern
 
 logger = get_logger(__name__)
 
@@ -28,10 +29,6 @@ _REGION_SORT_COLUMNS: dict[str, InstrumentedAttribute[object]] = {
     'created_at': Region.created_at,
     'updated_at': Region.updated_at,
 }
-
-
-def _escape_like_pattern(value: str) -> str:
-    return value.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
 
 
 class RegionRepository(SQLAlchemyRepository[Region, int]):
@@ -123,13 +120,14 @@ class RegionRepository(SQLAlchemyRepository[Region, int]):
             f'parent_region_id={parent_region_id}, root_only={root_only}, search={search!r})'
         )
         filters: list[ColumnElement[bool]] = []
+
         if root_only:
             filters.append(Region.parent_region_id.is_(None))
         elif parent_region_id is not None:
             filters.append(Region.parent_region_id == parent_region_id)
 
         if search is not None:
-            escaped = _escape_like_pattern(search.strip())
+            escaped = escape_like_pattern(search.strip())
             if escaped:
                 pattern = f'%{escaped}%'
                 filters.append(
@@ -150,7 +148,6 @@ class RegionRepository(SQLAlchemyRepository[Region, int]):
         primary_order: UnaryExpression[object] = (
             sort_column.asc() if sort.sort_order == 'asc' else sort_column.desc()
         )
-
         items_stmt = (
             select(Region)
             .where(*filters)

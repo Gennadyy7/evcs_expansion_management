@@ -81,7 +81,7 @@ class RegionService:
             depth=depth,
         )
         if region is None:
-            self._raise_region_not_found(region_id)
+            self._raise_not_found(region_id)
         return RegionTree.model_validate(region)
 
     async def create_region(self, payload: RegionCreate) -> RegionResponse:
@@ -160,7 +160,7 @@ class RegionService:
             self._raise_has_children(region_id)
 
         if await self._uow.regions.has_linked_entities(region_id):
-            self._raise_region_in_use(region_id)
+            self._raise_in_use(region_id)
 
         await self._uow.regions.delete(region)
         await self._uow.commit()
@@ -169,10 +169,10 @@ class RegionService:
     async def _get_region_entity(self, region_id: int) -> Region:
         region = await self._uow.regions.get_by_id(region_id)
         if region is None:
-            self._raise_region_not_found(region_id)
+            self._raise_not_found(region_id)
         return region
 
-    def _raise_region_not_found(self, region_id: int) -> NoReturn:
+    def _raise_not_found(self, region_id: int) -> NoReturn:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
@@ -241,7 +241,7 @@ class RegionService:
             },
         )
 
-    def _raise_region_in_use(self, region_id: int) -> NoReturn:
+    def _raise_in_use(self, region_id: int) -> NoReturn:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail={

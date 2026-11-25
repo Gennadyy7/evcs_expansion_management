@@ -1,7 +1,6 @@
 from typing import NoReturn
 
 from fastapi import HTTPException, status
-from sqlalchemy.exc import IntegrityError
 
 from app.core.logging import get_logger
 from app.core.pagination import (
@@ -79,13 +78,8 @@ class ChargerTypeService:
             name_ru=payload.name_ru,
             description=payload.description,
         )
-        try:
-            created = await self._uow.charger_types.create(charger_type)
-            await self._uow.commit()
-        except IntegrityError:
-            await self._uow.rollback()
-            self._raise_code_already_exists(payload.code)
-
+        created = await self._uow.charger_types.create(charger_type)
+        await self._uow.commit()
         logger.info(
             f'Created charger_type charger_type_id={created.charger_type_id}, '
             f'code={created.code!r}'

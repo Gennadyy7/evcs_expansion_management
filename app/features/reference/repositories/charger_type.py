@@ -10,6 +10,7 @@ from app.core.repositories.sqlalchemy import SQLAlchemyRepository
 from app.features.core.models import ChargingStation
 from app.features.pm.models import NetworkPlanLine, ProjectScope
 from app.features.reference.models import ChargerType
+from app.features.reference.repositories.utils import escape_like_pattern
 
 logger = get_logger(__name__)
 
@@ -20,10 +21,6 @@ _CHARGER_TYPE_SORT_COLUMNS: dict[str, InstrumentedAttribute[object]] = {
     'created_at': ChargerType.created_at,
     'updated_at': ChargerType.updated_at,
 }
-
-
-def _escape_like_pattern(value: str) -> str:
-    return value.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
 
 
 class ChargerTypeRepository(SQLAlchemyRepository[ChargerType, int]):
@@ -85,7 +82,7 @@ class ChargerTypeRepository(SQLAlchemyRepository[ChargerType, int]):
         filters: list[ColumnElement[bool]] = []
 
         if search is not None:
-            escaped = _escape_like_pattern(search.strip())
+            escaped = escape_like_pattern(search.strip())
             if escaped:
                 pattern = f'%{escaped}%'
                 filters.append(
