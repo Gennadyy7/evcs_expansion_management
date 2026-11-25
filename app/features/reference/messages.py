@@ -20,6 +20,14 @@ REFERENCE_MESSAGES: dict[str, str] = {
     ReferenceErrorCode.REGION_IN_USE: (
         'Невозможно удалить регион, так как он используется в площадках или планах развития'
     ),
+    ReferenceErrorCode.CHARGER_TYPE_NOT_FOUND: ('Тип зарядного оборудования не найден'),
+    ReferenceErrorCode.CHARGER_TYPE_CODE_ALREADY_EXISTS: (
+        'Тип зарядного оборудования с указанным кодом уже существует'
+    ),
+    ReferenceErrorCode.CHARGER_TYPE_IN_USE: (
+        'Невозможно удалить тип зарядного оборудования, '
+        'так как он используется в станциях, планах развития или проектах'
+    ),
 }
 
 

@@ -7,7 +7,15 @@ from app.features.reference.constants import (
     REGION_TREE_DEFAULT_DEPTH,
     REGION_TREE_MAX_DEPTH,
 )
-from app.features.reference.dependencies import RegionServiceDep
+from app.features.reference.dependencies import (
+    ChargerTypeServiceDep,
+    RegionServiceDep,
+)
+from app.features.reference.schemas.charger_type import (
+    ChargerTypeCreate,
+    ChargerTypeResponse,
+    ChargerTypeUpdate,
+)
 from app.features.reference.schemas.region import (
     RegionCreate,
     RegionResponse,
@@ -18,6 +26,7 @@ from app.features.reference.schemas.region import (
 router = APIRouter(prefix='/reference')
 
 _REGIONS_TAG = 'Reference: Regions'
+_CHARGER_TYPES_TAG = 'Reference: Charger Types'
 
 
 @router.get(
@@ -164,4 +173,108 @@ async def delete_region(
     region_id: Annotated[int, Path(gt=0, description='Unique region identifier')],
 ) -> Response:
     await service.delete_region(region_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get(
+    '/charger-types',
+    response_model=PaginatedResponse[ChargerTypeResponse],
+    tags=[_CHARGER_TYPES_TAG],
+    summary='List charger types with pagination, sorting and search',
+)
+async def list_charger_types(
+    service: ChargerTypeServiceDep,
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    limit: Annotated[
+        int | None,
+        Query(ge=1, description='Number of items per page'),
+    ] = None,
+    sort_by: Annotated[
+        str | None,
+        Query(
+            description=(
+                'Sort field (charger_type_id, code, name_ru, created_at, updated_at)'
+            )
+        ),
+    ] = None,
+    sort_order: Annotated[
+        str | None,
+        Query(description='Sort direction (asc, desc)'),
+    ] = None,
+    search: Annotated[
+        str | None,
+        Query(
+            min_length=1,
+            max_length=100,
+            description='Search by code, name or description',
+        ),
+    ] = None,
+) -> PaginatedResponse[ChargerTypeResponse]:
+    return await service.list_charger_types(
+        page=page,
+        limit=limit,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        search=search,
+    )
+
+
+@router.get(
+    '/charger-types/{charger_type_id}',
+    response_model=ChargerTypeResponse,
+    tags=[_CHARGER_TYPES_TAG],
+    summary='Get charger type by ID',
+)
+async def get_charger_type(
+    service: ChargerTypeServiceDep,
+    charger_type_id: Annotated[
+        int, Path(gt=0, description='Unique charger type identifier')
+    ],
+) -> ChargerTypeResponse:
+    return await service.get_charger_type(charger_type_id)
+
+
+@router.post(
+    '/charger-types',
+    response_model=ChargerTypeResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=[_CHARGER_TYPES_TAG],
+    summary='Create a new charger type',
+)
+async def create_charger_type(
+    service: ChargerTypeServiceDep,
+    payload: ChargerTypeCreate,
+) -> ChargerTypeResponse:
+    return await service.create_charger_type(payload)
+
+
+@router.patch(
+    '/charger-types/{charger_type_id}',
+    response_model=ChargerTypeResponse,
+    tags=[_CHARGER_TYPES_TAG],
+    summary='Partially update a charger type',
+)
+async def update_charger_type(
+    service: ChargerTypeServiceDep,
+    charger_type_id: Annotated[
+        int, Path(gt=0, description='Unique charger type identifier')
+    ],
+    payload: ChargerTypeUpdate,
+) -> ChargerTypeResponse:
+    return await service.update_charger_type(charger_type_id, payload)
+
+
+@router.delete(
+    '/charger-types/{charger_type_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=[_CHARGER_TYPES_TAG],
+    summary='Delete a charger type',
+)
+async def delete_charger_type(
+    service: ChargerTypeServiceDep,
+    charger_type_id: Annotated[
+        int, Path(gt=0, description='Unique charger type identifier')
+    ],
+) -> Response:
+    await service.delete_charger_type(charger_type_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
