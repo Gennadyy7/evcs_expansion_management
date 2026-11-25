@@ -28,6 +28,14 @@ REFERENCE_MESSAGES: dict[str, str] = {
         'Невозможно удалить тип зарядного оборудования, '
         'так как он используется в станциях, планах развития или проектах'
     ),
+    ReferenceErrorCode.CONNECTOR_TYPE_NOT_FOUND: ('Тип разъёма не найден'),
+    ReferenceErrorCode.CONNECTOR_TYPE_CODE_ALREADY_EXISTS: (
+        'Тип разъёма с указанным кодом уже существует'
+    ),
+    ReferenceErrorCode.CONNECTOR_TYPE_IN_USE: (
+        'Невозможно удалить тип разъёма, '
+        'так как он используется в разъёмах зарядного оборудования'
+    ),
 }
 
 

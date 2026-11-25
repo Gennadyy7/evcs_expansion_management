@@ -4,6 +4,7 @@ from fastapi import Depends
 
 from app.core.dependencies import UnitOfWorkDep
 from app.features.reference.services.charger_type_service import ChargerTypeService
+from app.features.reference.services.connector_type_service import ConnectorTypeService
 from app.features.reference.services.region_service import RegionService
 
 
@@ -19,3 +20,12 @@ def get_charger_type_service(uow: UnitOfWorkDep) -> ChargerTypeService:
 
 
 ChargerTypeServiceDep = Annotated[ChargerTypeService, Depends(get_charger_type_service)]
+
+
+def get_connector_type_service(uow: UnitOfWorkDep) -> ConnectorTypeService:
+    return ConnectorTypeService(uow)
+
+
+ConnectorTypeServiceDep = Annotated[
+    ConnectorTypeService, Depends(get_connector_type_service)
+]

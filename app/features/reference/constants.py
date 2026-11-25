@@ -21,6 +21,10 @@ class ReferenceErrorCode(StrEnum):
     CHARGER_TYPE_CODE_ALREADY_EXISTS = 'CHARGER_TYPE_CODE_ALREADY_EXISTS'
     CHARGER_TYPE_IN_USE = 'CHARGER_TYPE_IN_USE'
 
+    CONNECTOR_TYPE_NOT_FOUND = 'CONNECTOR_TYPE_NOT_FOUND'
+    CONNECTOR_TYPE_CODE_ALREADY_EXISTS = 'CONNECTOR_TYPE_CODE_ALREADY_EXISTS'
+    CONNECTOR_TYPE_IN_USE = 'CONNECTOR_TYPE_IN_USE'
+
 
 REGION_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
     {
@@ -47,3 +51,15 @@ CHARGER_TYPE_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
 )
 CHARGER_TYPE_DEFAULT_SORT_BY: str = 'code'
 CHARGER_TYPE_DEFAULT_SORT_ORDER: SortOrder = 'asc'
+
+CONNECTOR_TYPE_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
+    {
+        'connector_type_id',
+        'code',
+        'name_ru',
+        'created_at',
+        'updated_at',
+    }
+)
+CONNECTOR_TYPE_DEFAULT_SORT_BY: str = 'code'
+CONNECTOR_TYPE_DEFAULT_SORT_ORDER: SortOrder = 'asc'

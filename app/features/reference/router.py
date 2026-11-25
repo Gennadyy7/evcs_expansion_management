@@ -9,12 +9,18 @@ from app.features.reference.constants import (
 )
 from app.features.reference.dependencies import (
     ChargerTypeServiceDep,
+    ConnectorTypeServiceDep,
     RegionServiceDep,
 )
 from app.features.reference.schemas.charger_type import (
     ChargerTypeCreate,
     ChargerTypeResponse,
     ChargerTypeUpdate,
+)
+from app.features.reference.schemas.connector_type import (
+    ConnectorTypeCreate,
+    ConnectorTypeResponse,
+    ConnectorTypeUpdate,
 )
 from app.features.reference.schemas.region import (
     RegionCreate,
@@ -27,6 +33,10 @@ router = APIRouter(prefix='/reference')
 
 _REGIONS_TAG = 'Reference: Regions'
 _CHARGER_TYPES_TAG = 'Reference: Charger Types'
+_CONNECTOR_TYPES_TAG = 'Reference: Connector Types'
+
+
+# Regions
 
 
 @router.get(
@@ -176,6 +186,9 @@ async def delete_region(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+# Charger Types
+
+
 @router.get(
     '/charger-types',
     response_model=PaginatedResponse[ChargerTypeResponse],
@@ -277,4 +290,111 @@ async def delete_charger_type(
     ],
 ) -> Response:
     await service.delete_charger_type(charger_type_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# Connector Types
+
+
+@router.get(
+    '/connector-types',
+    response_model=PaginatedResponse[ConnectorTypeResponse],
+    tags=[_CONNECTOR_TYPES_TAG],
+    summary='List connector types with pagination, sorting and search',
+)
+async def list_connector_types(
+    service: ConnectorTypeServiceDep,
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    limit: Annotated[
+        int | None,
+        Query(ge=1, description='Number of items per page'),
+    ] = None,
+    sort_by: Annotated[
+        str | None,
+        Query(
+            description=(
+                'Sort field (connector_type_id, code, name_ru, created_at, updated_at)'
+            )
+        ),
+    ] = None,
+    sort_order: Annotated[
+        str | None,
+        Query(description='Sort direction (asc, desc)'),
+    ] = None,
+    search: Annotated[
+        str | None,
+        Query(
+            min_length=1,
+            max_length=100,
+            description='Search by code or name',
+        ),
+    ] = None,
+) -> PaginatedResponse[ConnectorTypeResponse]:
+    return await service.list_connector_types(
+        page=page,
+        limit=limit,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        search=search,
+    )
+
+
+@router.get(
+    '/connector-types/{connector_type_id}',
+    response_model=ConnectorTypeResponse,
+    tags=[_CONNECTOR_TYPES_TAG],
+    summary='Get connector type by ID',
+)
+async def get_connector_type(
+    service: ConnectorTypeServiceDep,
+    connector_type_id: Annotated[
+        int, Path(gt=0, description='Unique connector type identifier')
+    ],
+) -> ConnectorTypeResponse:
+    return await service.get_connector_type(connector_type_id)
+
+
+@router.post(
+    '/connector-types',
+    response_model=ConnectorTypeResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=[_CONNECTOR_TYPES_TAG],
+    summary='Create a new connector type',
+)
+async def create_connector_type(
+    service: ConnectorTypeServiceDep,
+    payload: ConnectorTypeCreate,
+) -> ConnectorTypeResponse:
+    return await service.create_connector_type(payload)
+
+
+@router.patch(
+    '/connector-types/{connector_type_id}',
+    response_model=ConnectorTypeResponse,
+    tags=[_CONNECTOR_TYPES_TAG],
+    summary='Partially update a connector type',
+)
+async def update_connector_type(
+    service: ConnectorTypeServiceDep,
+    connector_type_id: Annotated[
+        int, Path(gt=0, description='Unique connector type identifier')
+    ],
+    payload: ConnectorTypeUpdate,
+) -> ConnectorTypeResponse:
+    return await service.update_connector_type(connector_type_id, payload)
+
+
+@router.delete(
+    '/connector-types/{connector_type_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=[_CONNECTOR_TYPES_TAG],
+    summary='Delete a connector type',
+)
+async def delete_connector_type(
+    service: ConnectorTypeServiceDep,
+    connector_type_id: Annotated[
+        int, Path(gt=0, description='Unique connector type identifier')
+    ],
+) -> Response:
+    await service.delete_connector_type(connector_type_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
