@@ -4303,7 +4303,7 @@ def upgrade() -> None:
                       (11, 'TESTING', 'Пусконаладочные работы и испытания'),
                       (12, 'ACCEPTANCE', 'Приемка объекта в эксплуатацию'),
                       (13, 'GO_LIVE', 'Ввод в коммерческую эксплуатацию') ON CONFLICT (stage_no) DO NOTHING;
-               """)  # noqa: RUF001
+               """)
 
     op.execute("""
                INSERT INTO ref.cost_category(cost_kind, code, name_ru)
