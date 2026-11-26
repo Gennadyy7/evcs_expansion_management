@@ -29,6 +29,10 @@ class ReferenceErrorCode(StrEnum):
     SITE_TYPE_CODE_ALREADY_EXISTS = 'SITE_TYPE_CODE_ALREADY_EXISTS'
     SITE_TYPE_IN_USE = 'SITE_TYPE_IN_USE'
 
+    COST_CATEGORY_NOT_FOUND = 'COST_CATEGORY_NOT_FOUND'
+    COST_CATEGORY_ALREADY_EXISTS = 'COST_CATEGORY_ALREADY_EXISTS'
+    COST_CATEGORY_IN_USE = 'COST_CATEGORY_IN_USE'
+
 
 REGION_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
     {
@@ -79,3 +83,16 @@ SITE_TYPE_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
 )
 SITE_TYPE_DEFAULT_SORT_BY: str = 'code'
 SITE_TYPE_DEFAULT_SORT_ORDER: SortOrder = 'asc'
+
+COST_CATEGORY_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
+    {
+        'category_id',
+        'cost_kind',
+        'code',
+        'name_ru',
+        'created_at',
+        'updated_at',
+    }
+)
+COST_CATEGORY_DEFAULT_SORT_BY: str = 'cost_kind'
+COST_CATEGORY_DEFAULT_SORT_ORDER: SortOrder = 'asc'

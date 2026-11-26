@@ -43,6 +43,14 @@ REFERENCE_MESSAGES: dict[str, str] = {
     ReferenceErrorCode.SITE_TYPE_IN_USE: (
         'Невозможно удалить тип площадки, так как он используется в площадках'
     ),
+    ReferenceErrorCode.COST_CATEGORY_NOT_FOUND: ('Категория затрат не найдена'),
+    ReferenceErrorCode.COST_CATEGORY_ALREADY_EXISTS: (
+        'Категория затрат с указанным типом и кодом уже существует'
+    ),
+    ReferenceErrorCode.COST_CATEGORY_IN_USE: (
+        'Невозможно удалить категорию затрат, '
+        'так как она используется в финансовых данных'
+    ),
 }
 
 

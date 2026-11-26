@@ -5,6 +5,7 @@ from fastapi import Depends
 from app.core.dependencies import UnitOfWorkDep
 from app.features.reference.services.charger_type_service import ChargerTypeService
 from app.features.reference.services.connector_type_service import ConnectorTypeService
+from app.features.reference.services.cost_category_service import CostCategoryService
 from app.features.reference.services.region_service import RegionService
 from app.features.reference.services.site_type_service import SiteTypeService
 
@@ -37,3 +38,12 @@ def get_site_type_service(uow: UnitOfWorkDep) -> SiteTypeService:
 
 
 SiteTypeServiceDep = Annotated[SiteTypeService, Depends(get_site_type_service)]
+
+
+def get_cost_category_service(uow: UnitOfWorkDep) -> CostCategoryService:
+    return CostCategoryService(uow)
+
+
+CostCategoryServiceDep = Annotated[
+    CostCategoryService, Depends(get_cost_category_service)
+]

@@ -6,10 +6,12 @@ from app.core.pagination import PaginatedResponse
 from app.features.reference.constants import (
     REGION_TREE_DEFAULT_DEPTH,
     REGION_TREE_MAX_DEPTH,
+    CostKind,
 )
 from app.features.reference.dependencies import (
     ChargerTypeServiceDep,
     ConnectorTypeServiceDep,
+    CostCategoryServiceDep,
     RegionServiceDep,
     SiteTypeServiceDep,
 )
@@ -22,6 +24,11 @@ from app.features.reference.schemas.connector_type import (
     ConnectorTypeCreate,
     ConnectorTypeResponse,
     ConnectorTypeUpdate,
+)
+from app.features.reference.schemas.cost_category import (
+    CostCategoryCreate,
+    CostCategoryResponse,
+    CostCategoryUpdate,
 )
 from app.features.reference.schemas.region import (
     RegionCreate,
@@ -41,6 +48,7 @@ _REGIONS_TAG = 'Reference: Regions'
 _CHARGER_TYPES_TAG = 'Reference: Charger Types'
 _CONNECTOR_TYPES_TAG = 'Reference: Connector Types'
 _SITE_TYPES_TAG = 'Reference: Site Types'
+_COST_CATEGORIES_TAG = 'Reference: Cost Categories'
 
 
 # Regions
@@ -505,4 +513,117 @@ async def delete_site_type(
     site_type_id: Annotated[int, Path(gt=0, description='Unique site type identifier')],
 ) -> Response:
     await service.delete_site_type(site_type_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# Cost Categories
+
+
+@router.get(
+    '/cost-categories',
+    response_model=PaginatedResponse[CostCategoryResponse],
+    tags=[_COST_CATEGORIES_TAG],
+    summary='List cost categories with pagination, sorting, search and filtering',
+)
+async def list_cost_categories(
+    service: CostCategoryServiceDep,
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    limit: Annotated[
+        int | None,
+        Query(ge=1, description='Number of items per page'),
+    ] = None,
+    sort_by: Annotated[
+        str | None,
+        Query(
+            description=(
+                'Sort field '
+                '(category_id, cost_kind, code, name_ru, created_at, updated_at)'
+            )
+        ),
+    ] = None,
+    sort_order: Annotated[
+        str | None,
+        Query(description='Sort direction (asc, desc)'),
+    ] = None,
+    search: Annotated[
+        str | None,
+        Query(
+            min_length=1,
+            max_length=100,
+            description='Search by code or name',
+        ),
+    ] = None,
+    cost_kind: Annotated[
+        CostKind | None,
+        Query(description='Filter by cost kind (CAPEX, OPEX)'),
+    ] = None,
+) -> PaginatedResponse[CostCategoryResponse]:
+    return await service.list_cost_categories(
+        page=page,
+        limit=limit,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        search=search,
+        cost_kind=cost_kind,
+    )
+
+
+@router.get(
+    '/cost-categories/{category_id}',
+    response_model=CostCategoryResponse,
+    tags=[_COST_CATEGORIES_TAG],
+    summary='Get cost category by ID',
+)
+async def get_cost_category(
+    service: CostCategoryServiceDep,
+    category_id: Annotated[
+        int, Path(gt=0, description='Unique cost category identifier')
+    ],
+) -> CostCategoryResponse:
+    return await service.get_cost_category(category_id)
+
+
+@router.post(
+    '/cost-categories',
+    response_model=CostCategoryResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=[_COST_CATEGORIES_TAG],
+    summary='Create a new cost category',
+)
+async def create_cost_category(
+    service: CostCategoryServiceDep,
+    payload: CostCategoryCreate,
+) -> CostCategoryResponse:
+    return await service.create_cost_category(payload)
+
+
+@router.patch(
+    '/cost-categories/{category_id}',
+    response_model=CostCategoryResponse,
+    tags=[_COST_CATEGORIES_TAG],
+    summary='Partially update a cost category',
+)
+async def update_cost_category(
+    service: CostCategoryServiceDep,
+    category_id: Annotated[
+        int, Path(gt=0, description='Unique cost category identifier')
+    ],
+    payload: CostCategoryUpdate,
+) -> CostCategoryResponse:
+    return await service.update_cost_category(category_id, payload)
+
+
+@router.delete(
+    '/cost-categories/{category_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=[_COST_CATEGORIES_TAG],
+    summary='Delete a cost category',
+)
+async def delete_cost_category(
+    service: CostCategoryServiceDep,
+    category_id: Annotated[
+        int, Path(gt=0, description='Unique cost category identifier')
+    ],
+) -> Response:
+    await service.delete_cost_category(category_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
