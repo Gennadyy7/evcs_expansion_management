@@ -36,6 +36,13 @@ REFERENCE_MESSAGES: dict[str, str] = {
         'Невозможно удалить тип разъёма, '
         'так как он используется в разъёмах зарядного оборудования'
     ),
+    ReferenceErrorCode.SITE_TYPE_NOT_FOUND: ('Тип площадки не найден'),
+    ReferenceErrorCode.SITE_TYPE_CODE_ALREADY_EXISTS: (
+        'Тип площадки с указанным кодом уже существует'
+    ),
+    ReferenceErrorCode.SITE_TYPE_IN_USE: (
+        'Невозможно удалить тип площадки, так как он используется в площадках'
+    ),
 }
 
 

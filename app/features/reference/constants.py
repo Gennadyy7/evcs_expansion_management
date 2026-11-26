@@ -25,6 +25,10 @@ class ReferenceErrorCode(StrEnum):
     CONNECTOR_TYPE_CODE_ALREADY_EXISTS = 'CONNECTOR_TYPE_CODE_ALREADY_EXISTS'
     CONNECTOR_TYPE_IN_USE = 'CONNECTOR_TYPE_IN_USE'
 
+    SITE_TYPE_NOT_FOUND = 'SITE_TYPE_NOT_FOUND'
+    SITE_TYPE_CODE_ALREADY_EXISTS = 'SITE_TYPE_CODE_ALREADY_EXISTS'
+    SITE_TYPE_IN_USE = 'SITE_TYPE_IN_USE'
+
 
 REGION_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
     {
@@ -63,3 +67,15 @@ CONNECTOR_TYPE_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
 )
 CONNECTOR_TYPE_DEFAULT_SORT_BY: str = 'code'
 CONNECTOR_TYPE_DEFAULT_SORT_ORDER: SortOrder = 'asc'
+
+SITE_TYPE_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
+    {
+        'site_type_id',
+        'code',
+        'name_ru',
+        'created_at',
+        'updated_at',
+    }
+)
+SITE_TYPE_DEFAULT_SORT_BY: str = 'code'
+SITE_TYPE_DEFAULT_SORT_ORDER: SortOrder = 'asc'

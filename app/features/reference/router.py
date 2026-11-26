@@ -11,6 +11,7 @@ from app.features.reference.dependencies import (
     ChargerTypeServiceDep,
     ConnectorTypeServiceDep,
     RegionServiceDep,
+    SiteTypeServiceDep,
 )
 from app.features.reference.schemas.charger_type import (
     ChargerTypeCreate,
@@ -28,12 +29,18 @@ from app.features.reference.schemas.region import (
     RegionTree,
     RegionUpdate,
 )
+from app.features.reference.schemas.site_type import (
+    SiteTypeCreate,
+    SiteTypeResponse,
+    SiteTypeUpdate,
+)
 
 router = APIRouter(prefix='/reference')
 
 _REGIONS_TAG = 'Reference: Regions'
 _CHARGER_TYPES_TAG = 'Reference: Charger Types'
 _CONNECTOR_TYPES_TAG = 'Reference: Connector Types'
+_SITE_TYPES_TAG = 'Reference: Site Types'
 
 
 # Regions
@@ -397,4 +404,105 @@ async def delete_connector_type(
     ],
 ) -> Response:
     await service.delete_connector_type(connector_type_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# Site Types
+
+
+@router.get(
+    '/site-types',
+    response_model=PaginatedResponse[SiteTypeResponse],
+    tags=[_SITE_TYPES_TAG],
+    summary='List site types with pagination, sorting and search',
+)
+async def list_site_types(
+    service: SiteTypeServiceDep,
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    limit: Annotated[
+        int | None,
+        Query(ge=1, description='Number of items per page'),
+    ] = None,
+    sort_by: Annotated[
+        str | None,
+        Query(
+            description=(
+                'Sort field (site_type_id, code, name_ru, created_at, updated_at)'
+            )
+        ),
+    ] = None,
+    sort_order: Annotated[
+        str | None,
+        Query(description='Sort direction (asc, desc)'),
+    ] = None,
+    search: Annotated[
+        str | None,
+        Query(
+            min_length=1,
+            max_length=100,
+            description='Search by code or name',
+        ),
+    ] = None,
+) -> PaginatedResponse[SiteTypeResponse]:
+    return await service.list_site_types(
+        page=page,
+        limit=limit,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        search=search,
+    )
+
+
+@router.get(
+    '/site-types/{site_type_id}',
+    response_model=SiteTypeResponse,
+    tags=[_SITE_TYPES_TAG],
+    summary='Get site type by ID',
+)
+async def get_site_type(
+    service: SiteTypeServiceDep,
+    site_type_id: Annotated[int, Path(gt=0, description='Unique site type identifier')],
+) -> SiteTypeResponse:
+    return await service.get_site_type(site_type_id)
+
+
+@router.post(
+    '/site-types',
+    response_model=SiteTypeResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=[_SITE_TYPES_TAG],
+    summary='Create a new site type',
+)
+async def create_site_type(
+    service: SiteTypeServiceDep,
+    payload: SiteTypeCreate,
+) -> SiteTypeResponse:
+    return await service.create_site_type(payload)
+
+
+@router.patch(
+    '/site-types/{site_type_id}',
+    response_model=SiteTypeResponse,
+    tags=[_SITE_TYPES_TAG],
+    summary='Partially update a site type',
+)
+async def update_site_type(
+    service: SiteTypeServiceDep,
+    site_type_id: Annotated[int, Path(gt=0, description='Unique site type identifier')],
+    payload: SiteTypeUpdate,
+) -> SiteTypeResponse:
+    return await service.update_site_type(site_type_id, payload)
+
+
+@router.delete(
+    '/site-types/{site_type_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=[_SITE_TYPES_TAG],
+    summary='Delete a site type',
+)
+async def delete_site_type(
+    service: SiteTypeServiceDep,
+    site_type_id: Annotated[int, Path(gt=0, description='Unique site type identifier')],
+) -> Response:
+    await service.delete_site_type(site_type_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
