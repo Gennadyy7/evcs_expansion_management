@@ -51,6 +51,16 @@ REFERENCE_MESSAGES: dict[str, str] = {
         'Невозможно удалить категорию затрат, '
         'так как она используется в финансовых данных'
     ),
+    ReferenceErrorCode.PROJECT_STAGE_NOT_FOUND: ('Этап проекта не найден'),
+    ReferenceErrorCode.PROJECT_STAGE_ALREADY_EXISTS: (
+        'Этап проекта с указанным номером уже существует'
+    ),
+    ReferenceErrorCode.PROJECT_STAGE_CODE_ALREADY_EXISTS: (
+        'Этап проекта с указанным кодом уже существует'
+    ),
+    ReferenceErrorCode.PROJECT_STAGE_IN_USE: (
+        'Невозможно удалить этап проекта, так как он используется в проектах'
+    ),
 }
 
 

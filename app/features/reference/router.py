@@ -12,6 +12,7 @@ from app.features.reference.dependencies import (
     ChargerTypeServiceDep,
     ConnectorTypeServiceDep,
     CostCategoryServiceDep,
+    ProjectStageServiceDep,
     RegionServiceDep,
     SiteTypeServiceDep,
 )
@@ -29,6 +30,11 @@ from app.features.reference.schemas.cost_category import (
     CostCategoryCreate,
     CostCategoryResponse,
     CostCategoryUpdate,
+)
+from app.features.reference.schemas.project_stage import (
+    ProjectStageCreate,
+    ProjectStageResponse,
+    ProjectStageUpdate,
 )
 from app.features.reference.schemas.region import (
     RegionCreate,
@@ -49,6 +55,7 @@ _CHARGER_TYPES_TAG = 'Reference: Charger Types'
 _CONNECTOR_TYPES_TAG = 'Reference: Connector Types'
 _SITE_TYPES_TAG = 'Reference: Site Types'
 _COST_CATEGORIES_TAG = 'Reference: Cost Categories'
+_PROJECT_STAGES_TAG = 'Reference: Project Stages'
 
 
 # Regions
@@ -626,4 +633,106 @@ async def delete_cost_category(
     ],
 ) -> Response:
     await service.delete_cost_category(category_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# Project Stages
+
+
+@router.get(
+    '/project-stages',
+    response_model=PaginatedResponse[ProjectStageResponse],
+    tags=[_PROJECT_STAGES_TAG],
+    summary='List project stages with pagination, sorting and search',
+)
+async def list_project_stages(
+    service: ProjectStageServiceDep,
+    page: Annotated[int, Query(ge=1, description='Page number')] = 1,
+    limit: Annotated[
+        int | None,
+        Query(ge=1, description='Number of items per page'),
+    ] = None,
+    sort_by: Annotated[
+        str | None,
+        Query(
+            description=(
+                'Sort field '
+                '(stage_no, code, name_ru, is_milestone, created_at, updated_at)'
+            )
+        ),
+    ] = None,
+    sort_order: Annotated[
+        str | None,
+        Query(description='Sort direction (asc, desc)'),
+    ] = None,
+    search: Annotated[
+        str | None,
+        Query(
+            min_length=1,
+            max_length=100,
+            description='Search by code or name',
+        ),
+    ] = None,
+) -> PaginatedResponse[ProjectStageResponse]:
+    return await service.list_project_stages(
+        page=page,
+        limit=limit,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        search=search,
+    )
+
+
+@router.get(
+    '/project-stages/{stage_no}',
+    response_model=ProjectStageResponse,
+    tags=[_PROJECT_STAGES_TAG],
+    summary='Get project stage by number',
+)
+async def get_project_stage(
+    service: ProjectStageServiceDep,
+    stage_no: Annotated[int, Path(ge=0, le=13, description='Stage number (0-13)')],
+) -> ProjectStageResponse:
+    return await service.get_project_stage(stage_no)
+
+
+@router.post(
+    '/project-stages',
+    response_model=ProjectStageResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=[_PROJECT_STAGES_TAG],
+    summary='Create a new project stage',
+)
+async def create_project_stage(
+    service: ProjectStageServiceDep,
+    payload: ProjectStageCreate,
+) -> ProjectStageResponse:
+    return await service.create_project_stage(payload)
+
+
+@router.patch(
+    '/project-stages/{stage_no}',
+    response_model=ProjectStageResponse,
+    tags=[_PROJECT_STAGES_TAG],
+    summary='Partially update a project stage',
+)
+async def update_project_stage(
+    service: ProjectStageServiceDep,
+    stage_no: Annotated[int, Path(ge=0, le=13, description='Stage number (0-13)')],
+    payload: ProjectStageUpdate,
+) -> ProjectStageResponse:
+    return await service.update_project_stage(stage_no, payload)
+
+
+@router.delete(
+    '/project-stages/{stage_no}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=[_PROJECT_STAGES_TAG],
+    summary='Delete a project stage',
+)
+async def delete_project_stage(
+    service: ProjectStageServiceDep,
+    stage_no: Annotated[int, Path(ge=0, le=13, description='Stage number (0-13)')],
+) -> Response:
+    await service.delete_project_stage(stage_no)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

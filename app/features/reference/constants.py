@@ -33,6 +33,11 @@ class ReferenceErrorCode(StrEnum):
     COST_CATEGORY_ALREADY_EXISTS = 'COST_CATEGORY_ALREADY_EXISTS'
     COST_CATEGORY_IN_USE = 'COST_CATEGORY_IN_USE'
 
+    PROJECT_STAGE_NOT_FOUND = 'PROJECT_STAGE_NOT_FOUND'
+    PROJECT_STAGE_ALREADY_EXISTS = 'PROJECT_STAGE_ALREADY_EXISTS'
+    PROJECT_STAGE_CODE_ALREADY_EXISTS = 'PROJECT_STAGE_CODE_ALREADY_EXISTS'
+    PROJECT_STAGE_IN_USE = 'PROJECT_STAGE_IN_USE'
+
 
 REGION_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
     {
@@ -96,3 +101,16 @@ COST_CATEGORY_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
 )
 COST_CATEGORY_DEFAULT_SORT_BY: str = 'cost_kind'
 COST_CATEGORY_DEFAULT_SORT_ORDER: SortOrder = 'asc'
+
+PROJECT_STAGE_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
+    {
+        'stage_no',
+        'code',
+        'name_ru',
+        'is_milestone',
+        'created_at',
+        'updated_at',
+    }
+)
+PROJECT_STAGE_DEFAULT_SORT_BY: str = 'stage_no'
+PROJECT_STAGE_DEFAULT_SORT_ORDER: SortOrder = 'asc'
