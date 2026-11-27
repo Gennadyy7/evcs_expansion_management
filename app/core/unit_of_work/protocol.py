@@ -1,15 +1,25 @@
 from types import TracebackType
 from typing import Protocol, Self
 
+from app.features.core.repositories.organization import OrganizationRepository
 from app.features.reference.repositories.charger_type import ChargerTypeRepository
-from app.features.reference.repositories.connector_type import ConnectorTypeRepository
-from app.features.reference.repositories.cost_category import CostCategoryRepository
-from app.features.reference.repositories.project_stage import ProjectStageRepository
+from app.features.reference.repositories.connector_type import (
+    ConnectorTypeRepository,
+)
+from app.features.reference.repositories.cost_category import (
+    CostCategoryRepository,
+)
+from app.features.reference.repositories.project_stage import (
+    ProjectStageRepository,
+)
 from app.features.reference.repositories.region import RegionRepository
 from app.features.reference.repositories.site_type import SiteTypeRepository
 
 
 class UnitOfWorkProtocol(Protocol):
+    @property
+    def organizations(self) -> OrganizationRepository: ...
+
     @property
     def charger_types(self) -> ChargerTypeRepository: ...
 

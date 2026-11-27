@@ -5,10 +5,19 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.logging import get_logger
 from app.core.unit_of_work.protocol import UnitOfWorkProtocol
-from app.features.reference.repositories.charger_type import ChargerTypeRepository
-from app.features.reference.repositories.connector_type import ConnectorTypeRepository
-from app.features.reference.repositories.cost_category import CostCategoryRepository
-from app.features.reference.repositories.project_stage import ProjectStageRepository
+from app.features.core.repositories.organization import OrganizationRepository
+from app.features.reference.repositories.charger_type import (
+    ChargerTypeRepository,
+)
+from app.features.reference.repositories.connector_type import (
+    ConnectorTypeRepository,
+)
+from app.features.reference.repositories.cost_category import (
+    CostCategoryRepository,
+)
+from app.features.reference.repositories.project_stage import (
+    ProjectStageRepository,
+)
 from app.features.reference.repositories.region import RegionRepository
 from app.features.reference.repositories.site_type import SiteTypeRepository
 
@@ -19,6 +28,7 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
     def __init__(self, session_factory: async_sessionmaker[AsyncSession]):
         self._session_factory = session_factory
         self._session: AsyncSession | None = None
+        self._organizations: OrganizationRepository | None = None
         self._charger_types: ChargerTypeRepository | None = None
         self._connector_types: ConnectorTypeRepository | None = None
         self._cost_categories: CostCategoryRepository | None = None
@@ -29,13 +39,28 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
         logger.debug('SQLAlchemyUnitOfWork initialized with session factory')
 
     @property
+    def organizations(self) -> OrganizationRepository:
+        if self._organizations is None:
+            logger.error(
+                'Attempted to access organizations repository '
+                'outside of context manager block'
+            )
+            raise RuntimeError(
+                'UnitOfWork context is not active. '
+                'Access attributes inside an "async with" block.'
+            )
+        return self._organizations
+
+    @property
     def charger_types(self) -> ChargerTypeRepository:
         if self._charger_types is None:
             logger.error(
-                'Attempted to access charger_types repository outside of context manager block'
+                'Attempted to access charger_types repository '
+                'outside of context manager block'
             )
             raise RuntimeError(
-                'UnitOfWork context is not active. Access attributes inside an "async with" block.'
+                'UnitOfWork context is not active. '
+                'Access attributes inside an "async with" block.'
             )
         return self._charger_types
 
@@ -43,10 +68,12 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
     def connector_types(self) -> ConnectorTypeRepository:
         if self._connector_types is None:
             logger.error(
-                'Attempted to access connector_types repository outside of context manager block'
+                'Attempted to access connector_types repository '
+                'outside of context manager block'
             )
             raise RuntimeError(
-                'UnitOfWork context is not active. Access attributes inside an "async with" block.'
+                'UnitOfWork context is not active. '
+                'Access attributes inside an "async with" block.'
             )
         return self._connector_types
 
@@ -54,10 +81,12 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
     def cost_categories(self) -> CostCategoryRepository:
         if self._cost_categories is None:
             logger.error(
-                'Attempted to access cost_categories repository outside of context manager block'
+                'Attempted to access cost_categories repository '
+                'outside of context manager block'
             )
             raise RuntimeError(
-                'UnitOfWork context is not active. Access attributes inside an "async with" block.'
+                'UnitOfWork context is not active. '
+                'Access attributes inside an "async with" block.'
             )
         return self._cost_categories
 
@@ -65,10 +94,12 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
     def project_stages(self) -> ProjectStageRepository:
         if self._project_stages is None:
             logger.error(
-                'Attempted to access project_stages repository outside of context manager block'
+                'Attempted to access project_stages repository '
+                'outside of context manager block'
             )
             raise RuntimeError(
-                'UnitOfWork context is not active. Access attributes inside an "async with" block.'
+                'UnitOfWork context is not active. '
+                'Access attributes inside an "async with" block.'
             )
         return self._project_stages
 
@@ -76,10 +107,12 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
     def regions(self) -> RegionRepository:
         if self._regions is None:
             logger.error(
-                'Attempted to access regions repository outside of context manager block'
+                'Attempted to access regions repository '
+                'outside of context manager block'
             )
             raise RuntimeError(
-                'UnitOfWork context is not active. Access attributes inside an "async with" block.'
+                'UnitOfWork context is not active. '
+                'Access attributes inside an "async with" block.'
             )
         return self._regions
 
@@ -87,10 +120,12 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
     def site_types(self) -> SiteTypeRepository:
         if self._site_types is None:
             logger.error(
-                'Attempted to access site_types repository outside of context manager block'
+                'Attempted to access site_types repository '
+                'outside of context manager block'
             )
             raise RuntimeError(
-                'UnitOfWork context is not active. Access attributes inside an "async with" block.'
+                'UnitOfWork context is not active. '
+                'Access attributes inside an "async with" block.'
             )
         return self._site_types
 
@@ -99,8 +134,11 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
         self._session = self._session_factory()
         assert self._session is not None
         logger.debug(
-            f'Database session opened successfully. Session ID: {hex(id(self._session))}'
+            f'Database session opened successfully. '
+            f'Session ID: {hex(id(self._session))}'
         )
+
+        self._organizations = OrganizationRepository(self._session)
         self._charger_types = ChargerTypeRepository(self._session)
         self._connector_types = ConnectorTypeRepository(self._session)
         self._cost_categories = CostCategoryRepository(self._session)
@@ -122,14 +160,16 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
         try:
             if exc_type is not None:
                 logger.warning(
-                    f'Exception detected inside UnitOfWork [Session ID: {session_id}]. '
-                    f'Type: {exc_type.__name__}, Value: {exc_val}. Triggering rollback.'
+                    f'Exception detected inside UnitOfWork '
+                    f'[Session ID: {session_id}]. '
+                    f'Type: {exc_type.__name__}, Value: {exc_val}. '
+                    'Triggering rollback.'
                 )
                 await self.rollback()
             elif not self._committed:
                 logger.debug(
-                    f'UnitOfWork exiting without commit for Session ID: {session_id}. '
-                    'Triggering rollback.'
+                    f'UnitOfWork exiting without commit '
+                    f'for Session ID: {session_id}. Triggering rollback.'
                 )
                 await self.rollback()
         finally:

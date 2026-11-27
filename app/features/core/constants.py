@@ -1,5 +1,7 @@
 from enum import StrEnum
 
+from app.core.query_params import SortOrder
+
 
 class SiteStatus(StrEnum):
     CANDIDATE = 'CANDIDATE'
@@ -47,3 +49,23 @@ class OrganizationKind(StrEnum):
 class CurrentKind(StrEnum):
     AC = 'AC'
     DC = 'DC'
+
+
+class CoreErrorCode(StrEnum):
+    ORGANIZATION_NOT_FOUND = 'ORGANIZATION_NOT_FOUND'
+    ORGANIZATION_REGISTRATION_CODE_EXISTS = 'ORGANIZATION_REGISTRATION_CODE_EXISTS'
+    ORGANIZATION_IN_USE = 'ORGANIZATION_IN_USE'
+
+
+ORGANIZATION_ALLOWED_SORT_COLUMNS: frozenset[str] = frozenset(
+    {
+        'organization_id',
+        'legal_name',
+        'registration_code',
+        'organization_kind',
+        'created_at',
+        'updated_at',
+    }
+)
+ORGANIZATION_DEFAULT_SORT_BY: str = 'legal_name'
+ORGANIZATION_DEFAULT_SORT_ORDER: SortOrder = 'asc'
