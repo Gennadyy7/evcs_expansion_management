@@ -112,7 +112,7 @@ class ProjectStageService:
         if 'name_ru' in update_data and update_data['name_ru'] is not None:
             project_stage.name_ru = str(update_data['name_ru'])
 
-        if 'is_milestone' in update_data:
+        if 'is_milestone' in update_data and update_data['is_milestone'] is not None:
             project_stage.is_milestone = update_data['is_milestone']
 
         updated = await self._uow.project_stages.update(project_stage)
