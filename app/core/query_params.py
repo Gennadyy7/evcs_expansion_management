@@ -3,7 +3,7 @@ from typing import Literal
 
 from fastapi import HTTPException, status
 
-from app.core.constants import CoreErrorCode
+from app.core.constants import QueryParamErrorCode
 from app.core.messages import get_message
 
 SortOrder = Literal['asc', 'desc']
@@ -28,8 +28,8 @@ def resolve_sort_params(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail={
-                'code': CoreErrorCode.INVALID_SORT_BY,
-                'message': get_message(CoreErrorCode.INVALID_SORT_BY),
+                'code': QueryParamErrorCode.INVALID_SORT_BY,
+                'message': get_message(QueryParamErrorCode.INVALID_SORT_BY),
                 'sort_by': resolved_sort_by,
                 'allowed': sorted(allowed_columns),
             },
@@ -42,8 +42,8 @@ def resolve_sort_params(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail={
-                'code': CoreErrorCode.INVALID_SORT_ORDER,
-                'message': get_message(CoreErrorCode.INVALID_SORT_ORDER),
+                'code': QueryParamErrorCode.INVALID_SORT_ORDER,
+                'message': get_message(QueryParamErrorCode.INVALID_SORT_ORDER),
                 'sort_order': sort_order,
                 'allowed': ['asc', 'desc'],
             },
