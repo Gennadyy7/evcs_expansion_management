@@ -82,7 +82,7 @@ class OrganizationService:
                 registration_code
             )
             if existing is not None:
-                self._raise_registration_code_exists(registration_code)
+                self._raise_registration_code_already_exists(registration_code)
 
         organization = Organization(
             legal_name=payload.legal_name,
@@ -114,20 +114,16 @@ class OrganizationService:
             if new_code is not None:
                 new_code = new_code.strip() or None
 
-            if new_code != organization.registration_code:
-                if new_code is not None:
-                    existing = await self._uow.organizations.get_by_registration_code(
-                        new_code
-                    )
-                    if (
-                        existing is not None
-                        and existing.organization_id != organization_id
-                    ):
-                        self._raise_registration_code_exists(new_code)
-                organization.registration_code = new_code
+            if new_code != organization.registration_code and new_code is not None:
+                existing = await self._uow.organizations.get_by_registration_code(
+                    new_code
+                )
+                if existing is not None and existing.organization_id != organization_id:
+                    self._raise_registration_code_already_exists(new_code)
+            organization.registration_code = new_code
 
         if 'legal_name' in update_data and update_data['legal_name'] is not None:
-            organization.legal_name = update_data['legal_name']
+            organization.legal_name = str(update_data['legal_name'])
 
         if (
             'organization_kind' in update_data
@@ -174,13 +170,15 @@ class OrganizationService:
             },
         )
 
-    def _raise_registration_code_exists(self, registration_code: str) -> NoReturn:
+    def _raise_registration_code_already_exists(
+        self, registration_code: str
+    ) -> NoReturn:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail={
-                'code': CoreErrorCode.ORGANIZATION_REGISTRATION_CODE_EXISTS,
+                'code': CoreErrorCode.ORGANIZATION_REGISTRATION_CODE_ALREADY_EXISTS,
                 'message': get_core_message(
-                    CoreErrorCode.ORGANIZATION_REGISTRATION_CODE_EXISTS
+                    CoreErrorCode.ORGANIZATION_REGISTRATION_CODE_ALREADY_EXISTS
                 ),
                 'registration_code': registration_code,
             },

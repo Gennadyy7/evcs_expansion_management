@@ -28,28 +28,15 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
     def __init__(self, session_factory: async_sessionmaker[AsyncSession]):
         self._session_factory = session_factory
         self._session: AsyncSession | None = None
-        self._organizations: OrganizationRepository | None = None
         self._charger_types: ChargerTypeRepository | None = None
         self._connector_types: ConnectorTypeRepository | None = None
         self._cost_categories: CostCategoryRepository | None = None
+        self._organizations: OrganizationRepository | None = None
         self._project_stages: ProjectStageRepository | None = None
         self._regions: RegionRepository | None = None
         self._site_types: SiteTypeRepository | None = None
         self._committed = False
         logger.debug('SQLAlchemyUnitOfWork initialized with session factory')
-
-    @property
-    def organizations(self) -> OrganizationRepository:
-        if self._organizations is None:
-            logger.error(
-                'Attempted to access organizations repository '
-                'outside of context manager block'
-            )
-            raise RuntimeError(
-                'UnitOfWork context is not active. '
-                'Access attributes inside an "async with" block.'
-            )
-        return self._organizations
 
     @property
     def charger_types(self) -> ChargerTypeRepository:
@@ -89,6 +76,19 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
                 'Access attributes inside an "async with" block.'
             )
         return self._cost_categories
+
+    @property
+    def organizations(self) -> OrganizationRepository:
+        if self._organizations is None:
+            logger.error(
+                'Attempted to access organizations repository '
+                'outside of context manager block'
+            )
+            raise RuntimeError(
+                'UnitOfWork context is not active. '
+                'Access attributes inside an "async with" block.'
+            )
+        return self._organizations
 
     @property
     def project_stages(self) -> ProjectStageRepository:
@@ -138,10 +138,10 @@ class SQLAlchemyUnitOfWork(UnitOfWorkProtocol):
             f'Session ID: {hex(id(self._session))}'
         )
 
-        self._organizations = OrganizationRepository(self._session)
         self._charger_types = ChargerTypeRepository(self._session)
         self._connector_types = ConnectorTypeRepository(self._session)
         self._cost_categories = CostCategoryRepository(self._session)
+        self._organizations = OrganizationRepository(self._session)
         self._project_stages = ProjectStageRepository(self._session)
         self._regions = RegionRepository(self._session)
         self._site_types = SiteTypeRepository(self._session)

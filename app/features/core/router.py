@@ -44,6 +44,8 @@ async def list_organizations(
         str | None,
         Query(description='Sort direction (asc, desc)'),
     ] = None,
+    # max_length=200: long-text field (legal_name up to 500 chars in DB).
+    # Short codes use max_length=100 per the reference-domain baseline.
     search: Annotated[
         str | None,
         Query(

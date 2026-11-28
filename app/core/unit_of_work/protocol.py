@@ -18,9 +18,6 @@ from app.features.reference.repositories.site_type import SiteTypeRepository
 
 class UnitOfWorkProtocol(Protocol):
     @property
-    def organizations(self) -> OrganizationRepository: ...
-
-    @property
     def charger_types(self) -> ChargerTypeRepository: ...
 
     @property
@@ -28,6 +25,9 @@ class UnitOfWorkProtocol(Protocol):
 
     @property
     def cost_categories(self) -> CostCategoryRepository: ...
+
+    @property
+    def organizations(self) -> OrganizationRepository: ...
 
     @property
     def project_stages(self) -> ProjectStageRepository: ...

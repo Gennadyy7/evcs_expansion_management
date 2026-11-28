@@ -4,7 +4,7 @@ from app.features.core.constants import CoreErrorCode
 
 CORE_MESSAGES: dict[str, str] = {
     CoreErrorCode.ORGANIZATION_NOT_FOUND: 'Организация не найдена',
-    CoreErrorCode.ORGANIZATION_REGISTRATION_CODE_EXISTS: (
+    CoreErrorCode.ORGANIZATION_REGISTRATION_CODE_ALREADY_EXISTS: (
         'Организация с указанным регистрационным кодом уже существует'
     ),
     CoreErrorCode.ORGANIZATION_IN_USE: (
